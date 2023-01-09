@@ -1,98 +1,73 @@
 import * as React from 'react';
 import { Text, View, Button } from 'react-native';
 import Constants from 'expo-constants';
+import { Foundation, Ionicons,FontAwesome,AntDesign,FontAwesome5  } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+
+import HomeScreen from './screens/HomeScreen'
 
 
 
 
 
 
-class Li extends React.Component {
-  render() {
-    if (this.props.emoji == undefined) {
-      return <Text>{'•' + this.props.text}</Text>;
-    }
-    return <Text>{'•' + this.props.emoji + this.props.text}</Text>;
-  }
-}
 
-// function Li2 (props){
-//     return <Text>{props.emoji}  {props.text}</Text>
-// }
-
-const Clock = function (props) {
-
-  const [date, setDate] = React.useState(new Date());
-  setTimeout(function () {
-    setDate(new Date());
-  }, 1000)
-
-  return <Text style={styles.time}> {date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes()}</Text>;
-}
-
-const TimeMessage = function (props) {
-  const [date, setDate] = React.useState(new Date());
-  setTimeout(function () {
-    setDate(new Date());
-  }, 1000)
-  var message = ""
-  if (date.getHours() < 12) {
-    message = "Good Morning"
-  } else if (date.getHours() < 18) {
-    message = "Good Afternoon"
-  } else {
-    message = "Good Evening"
-  }
-  return <Text style = {{fontSize:30}}> {message}</Text>
-}
-
-async function GetEvents(){
-
-  
-
-
-
-
-}
-
-async function getItem(key){
-  try {
-    const value = await AsyncStorage.getItem(key);
-    if (value !== null) {
-      // We have data!!
-
-      return value
-    }else{
-      return null
-    }
-  } catch (error) {
-    // Error retrieving data
-  }
-}
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <>
-      <View style={styles.container}>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
 
-        <Clock />
-        <TimeMessage />
+            // You can return any component that you like here!
+            return <Text style={{ color: color }}>{focused ? "🙉" : "🙈"}</Text>;
+          },
+          tabBarActiveTintColor: 'tomato',
+          tabBarInactiveTintColor: 'gray',
+        })}
+      >
+        <Tab.Screen name="Notes" component={HomeScreen} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <FontAwesome5 name="sticky-note" size={24} color="black" />
+            );
+          },
+        }} />
+        <Tab.Screen name="Calendar" component={HomeScreen} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <AntDesign name="calendar" size={24} color="black" />
+            );
+          },
+        }} />
+        <Tab.Screen name="Home" component={HomeScreen} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Ionicons name="home" size={24} color="black" />
+            );
+          },
+        }} />
+        <Tab.Screen name="Todo" component={HomeScreen} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Foundation name="clipboard-notes" size={24} color="black" />
+            );
+          },
+        }} />
+        <Tab.Screen name="Profile" component={HomeScreen} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <FontAwesome name="user-circle" size={24} color="black" />
+            );
+          },
+        }} />
 
-
-        <View style={styles.container2}>
-
-            <Text>{"<"}Calendar event{">"}</Text>
-            <Text>You have no events scheduled</Text>
-            <Text>{"\n\n\n\n"}</Text>
-
-            <Text>-----------------------</Text>
-            <Text>Todo</Text>
-            <Text>All of your work is completed!</Text>
-
-        </View>
-      </View>
-
-    </>
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
