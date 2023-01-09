@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 
 import HomeScreen from './screens/HomeScreen'
-
+import ProfileScreen from './screens/ProfileScreen'
 
 
 
@@ -24,7 +24,7 @@ export default function App() {
           tabBarIcon: ({ focused, color, size }) => {
 
             // You can return any component that you like here!
-            return <Text style={{ color: color }}>{focused ? "🙉" : "🙈"}</Text>;
+            return <Text style={{ color: color }}></Text>;
           },
           tabBarActiveTintColor: 'tomato',
           tabBarInactiveTintColor: 'gray',
@@ -58,7 +58,7 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name="Profile" component={HomeScreen} options={{
+        <Tab.Screen name="Profile" component={ProfileScreen} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <FontAwesome name="user-circle" size={24} color="black" />
