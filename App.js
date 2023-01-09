@@ -27,7 +27,7 @@ const Clock = function (props) {
     setDate(new Date());
   }, 1000)
 
-  return <Text style={styles.time}> {date.getHours() + ':' + date.getMinutes()}</Text>;
+  return <Text style={styles.time}> {date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes()}</Text>;
 }
 
 const TimeMessage = function (props) {
@@ -43,15 +43,56 @@ const TimeMessage = function (props) {
   } else {
     message = "Good Evening"
   }
-  return <Text > {message}</Text>
+  return <Text style = {{fontSize:30}}> {message}</Text>
+}
+
+async function GetEvents(){
+
+  
+
+
+
+
+}
+
+async function getItem(key){
+  try {
+    const value = await AsyncStorage.getItem(key);
+    if (value !== null) {
+      // We have data!!
+
+      return value
+    }else{
+      return null
+    }
+  } catch (error) {
+    // Error retrieving data
+  }
 }
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Clock />
-      <TimeMessage />
-    </View>
+    <>
+      <View style={styles.container}>
+
+        <Clock />
+        <TimeMessage />
+
+
+        <View style={styles.container2}>
+
+            <Text>{"<"}Calendar event{">"}</Text>
+            <Text>You have no events scheduled</Text>
+            <Text>{"\n\n\n\n"}</Text>
+
+            <Text>-----------------------</Text>
+            <Text>Todo</Text>
+            <Text>All of your work is completed!</Text>
+
+        </View>
+      </View>
+
+    </>
   );
 }
 
@@ -64,8 +105,16 @@ var styles = {
     padding: 8,
 
   },
+  container2: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: Constants.statusBarHeight,
+    padding: 8,
+  },
   time: {
+    paddingTop: Constants.statusBarHeight,
     fontWeight: "bold",
-    fontSize: 60
+    fontSize: 80
   }
 };
