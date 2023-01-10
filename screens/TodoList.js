@@ -81,7 +81,7 @@ var styles = {
     },
     header: {
         fontSize: 10,
-        fontWeight:1,
+        fontWeight:"bold",
         
     },
     title: {
