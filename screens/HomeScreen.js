@@ -30,17 +30,18 @@ const Clock = function (props) {
 }
 
 const TimeMessage = function (props) {
+  const language = props.language
   const [date, setDate] = React.useState(new Date());
   setTimeout(function () {
     setDate(new Date());
   }, 1000)
   var message = ""
   if (date.getHours() < 12) {
-    message = "Good Morning"
+    message = !language?"Good morning":"早上好"
   } else if (date.getHours() < 18) {
-    message = "Good Afternoon"
+    message = !language?"Good Afternoon":"下午好"
   } else {
-    message = "Good Evening"
+    message = !language?"Good Evening":"晚上好"
   }
   return <Text style={{ fontSize: 30 }}> {message}</Text>
 }
@@ -54,40 +55,25 @@ async function GetEvents() {
 
 }
 
-async function getItem(key) {
-  try {
-    const value = await AsyncStorage.getItem(key);
-    if (value !== null) {
-      // We have data!!
-
-      return value
-    } else {
-      return null
-    }
-  } catch (error) {
-    // Error retrieving data
-  }
-}
-
-
-export default function HomeScreen() {
+export default function HomeScreen(props) {
+  const language = props.language
   return (
     <>
       <View style={styles.container}>
 
         <Clock />
-        <TimeMessage />
+        <TimeMessage language = {language}/>
 
 
         <View style={styles.container2}>
 
-          <Text>{"<"}Calendar event{">"}</Text>
-          <Text>You have no events scheduled</Text>
+          <Text>{"<"}{!language?"Calendar event":"日历节目"}{">"}</Text>
+          <Text>{!language?"You have no events scheduled":"你今天没有节目"}</Text>
           <Text>{"\n\n\n\n"}</Text>
 
           <Text style = {{fontWeight:"bold"}}>------------------------------------------------------------</Text>
-          <Text>Todo</Text>
-          <Text>All of your work is completed!</Text>
+          <Text>{!language?"Todo":"待办"}</Text>
+          <Text>{!language?"All of your work is completed!":"你所有的工作都完成了"}</Text>
 
         </View>
       </View>
