@@ -9,7 +9,7 @@ import { NavigationContainer } from '@react-navigation/native';
 export default function ProfileScreen() {
     return (
         <>
-            <View style={{ flex: 1, flexDirection: "row", borderWidth: 2 }}>
+            <View style={{ flex: 1, flexDirection: "row", borderBottomWidth: 2 }}>
                 <Ionicons style={{ flex: 1 }} name="person-circle-outline" size={75} color="black" />
                 <View style={{ flex: 2, paddingTop: Constants.statusBarHeight }}>
                     <Text style = {{marginLeft:8}}>You are not logged in!</Text>
@@ -19,7 +19,15 @@ export default function ProfileScreen() {
                 </View>
 
             </View>
-            <View style={{ flex: 5 }}></View>
+            <View style={{ flex: 5}}>
+                <Text style = {{fontWeight:"bold",fontSize:30,paddingBottom:40,paddingLeft:20}}>Settings</Text>
+                <View style = {{paddingLeft:40}}>
+                    <Text style = {{fontWeight:"bold",fontSize:20}}>Theme</Text>
+                    <View style = {{flexDirection:"row"}}>
+
+                    </View>
+                </View>
+            </View>
 
 
         </>
