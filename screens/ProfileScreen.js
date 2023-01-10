@@ -1,11 +1,13 @@
 import * as React from 'react';
-import { AsyncStorage } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+
+
 
 
 const EmailInput = () => {
@@ -41,7 +43,9 @@ const PasswordInput = () => {
     )
 }
 
-function DeleteCountDown() {
+function DeleteCountDown(props) {
+    const reset = props.reset
+    const language = props.language
     var deleteEnabled = false
     const [second, setSecond] = React.useState(10)
     var text = "🔒"
@@ -50,15 +54,15 @@ function DeleteCountDown() {
     }, 1000)
 
     if (second == 0) {
-        text = "Confirm Deletion"
+        text = !language ? "Confirm Deletion" : "确定删除"
         deleteEnabled = true
         clearTimeout(timer)
 
     }
     return (
         <>
-            <Text style={{ fontWeight: "bold", marginTop: 60 }}>Delete button will unlock in {second} seconds</Text>
-            <Pressable disabled={deleteEnabled} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
+            <Text style={{ fontWeight: "bold", marginTop: 60 }}>{!language ? ("Delete button will unlock in " + second + " seconds") : ("删除按钮将在 " + second + " 秒后解锁")}</Text>
+            <Pressable onPress={() => { reset() }} disabled={!deleteEnabled} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
                 <Text style={{ fontWeight: "bold", color: "black" }}>{text}</Text>
             </Pressable>
         </>
@@ -66,10 +70,13 @@ function DeleteCountDown() {
 }
 
 
-export default function ProfileScreen() {
+export default function ProfileScreen(props) {
     const [LoginModal, setLoginModal] = React.useState(false);
     const [ResetModal, setResetModal] = React.useState(false);
-    const [language, setLanguage] = React.useState(false)
+    const language = props.language
+    const rerender = props.rerender
+
+
     return (
         <>
             <Modal
@@ -117,9 +124,16 @@ export default function ProfileScreen() {
                             onPress={() => setResetModal(!ResetModal)}>
                             <AntDesign name="closecircle" size={24} color="black" />
                         </Pressable>
-                        <Text style={{ fontWeight: "bold" }}>Delete all data confirmation</Text>
-                        <Text style={{ fontWeight: "bold", marginTop: 40 }}>All Collections and Notes will be deleted forever</Text>
-                        <DeleteCountDown />
+                        <Text style={{ fontWeight: "bold" }}>{!language ? "Delete all data confirmation" : "删除所有数据确认"}</Text>
+                        <Text style={{ fontWeight: "bold", marginTop: 40 }}>{!language ? "All Collections and Notes will be deleted forever!" : "所有收藏和笔记将被永久删除!"}</Text>
+                        <DeleteCountDown language={language} reset={() => {
+                            setResetModal(!ResetModal)
+                            AsyncStorage.setItem("language", (false).toString())
+                                .catch((error) => {
+                                    console.error(error)
+                                })
+                            rerender()
+                        }} />
 
                     </View>
                 </View>
@@ -127,9 +141,9 @@ export default function ProfileScreen() {
             <View style={{ flex: 1, flexDirection: "row", borderBottomWidth: 2 }}>
                 <Ionicons style={{ flex: 1 }} name="person-circle-outline" size={75} color="black" />
                 <View style={{ flex: 2, paddingTop: Constants.statusBarHeight }}>
-                    <Text style={{ marginLeft: 8, paddingBottom: 20 }}>You are not logged in!</Text>
+                    <Text style={{ marginLeft: 8, paddingBottom: 20 }}>{!language ? "You are not logged in!" : "你没有登录!"}</Text>
                     <Pressable style={styles.button} onPress={() => setLoginModal(true)}>
-                        <Text style={{ fontWeight: "bold" }} >Login</Text>
+                        <Text style={{ fontWeight: "bold" }} >{!language ? "Login" : "登录"}</Text>
                     </Pressable>
                 </View>
 
@@ -140,10 +154,10 @@ export default function ProfileScreen() {
                     <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Theme" : "颜色主题"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
                         <Pressable style={[styles.button, { backgroundColor: "#000000", width: 180 }]}>
-                            <Text style={{ fontWeight: "bold", color: "white" }}>Dark</Text>
+                            <Text style={{ fontWeight: "bold", color: "white" }}>{!language ? "Dark" : "暗"}</Text>
                         </Pressable>
                         <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
-                            <Text style={{ fontWeight: "bold", color: "black" }}>Light</Text>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Light" : "亮"}</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -151,21 +165,23 @@ export default function ProfileScreen() {
                     <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Language" : "语言"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
                         <Pressable onPress={() => {
-                            setLanguage(!language)
-                            _storeData = async () => {
-                                try {
-                                    await AsyncStorage.setItem(
-                                        'language',
-                                        language,
-                                    );
-                                } catch (error) {
-                                    // Error saving data
-                                }
-                            };
-                        }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
+                            AsyncStorage.setItem("language", (!language).toString())
+                                .catch((error) => {
+                                    console.error(error)
+                                })
+                            rerender()
+
+                        }} disabled={!language} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
                             <Text style={[{ fontWeight: "bold", color: "black" }, !language ? { opacity: .5 } : { opacity: 1 }]}>English</Text>
                         </Pressable>
-                        <Pressable onPress={() => { setLanguage(!language) }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
+                        <Pressable onPress={() => {
+                            AsyncStorage.setItem("language", (!language).toString())
+                                .catch((error) => {
+                                    console.error(error)
+                                })
+                            rerender()
+
+                        }} disabled={language} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
                             <Text style={[{ fontWeight: "bold", color: "black" }, language ? { opacity: .5 } : { opacity: 1 }]}>华文</Text>
                         </Pressable>
                     </View>

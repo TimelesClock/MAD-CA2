@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Text, View, Button } from 'react-native';
 import Constants from 'expo-constants';
-import { Foundation, Ionicons,FontAwesome,AntDesign,FontAwesome5  } from '@expo/vector-icons';
+import { Foundation, Ionicons, FontAwesome, AntDesign, FontAwesome5 } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
-
+import { NavigationContainer,useNavigation  } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from './screens/HomeScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import TodoList from "./screens/TodoList"
@@ -17,8 +17,19 @@ import TodoList from "./screens/TodoList"
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  
+  const [language, setLanguage] = React.useState(false)
+  AsyncStorage.getItem("language")
+    .then((value) => {
+      setLanguage(value === 'true')
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+
   return (
     <NavigationContainer>
+      
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
@@ -29,36 +40,40 @@ export default function App() {
           tabBarActiveTintColor: 'tomato',
           tabBarInactiveTintColor: 'gray',
         })}
+        initialRouteName={!language ? "Home" : "主页"}
       >
-        <Tab.Screen name="Notes" component={HomeScreen} options={{
+        <Tab.Screen name={!language ? "Notes" : "笔记"} component={HomeScreen} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <FontAwesome5 name="sticky-note" size={24} color="black" />
             );
           },
         }} />
-        <Tab.Screen name="Calendar" component={HomeScreen} options={{
+        <Tab.Screen name={!language ? "Calendar" : "日历"} component={HomeScreen} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <AntDesign name="calendar" size={24} color="black" />
             );
           },
         }} />
-        <Tab.Screen name="Home" component={HomeScreen} options={{
+        <Tab.Screen name={!language ? "Home" : "主页"} children={() => <HomeScreen language={language}/>} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <Ionicons name="home" size={24} color="black" />
             );
           },
         }} />
-        <Tab.Screen name="Todo" component={TodoList} options={{
+        <Tab.Screen name={!language ? "Todo" : "待办"} component={TodoList} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <Foundation name="clipboard-notes" size={24} color="black" />
             );
           },
         }} />
-        <Tab.Screen name="Profile" component={ProfileScreen} options={{
+        <Tab.Screen name={!language ? "Profile" : "资料"} children={() => <ProfileScreen language={language}  rerender={(navigation) => {
+          setLanguage(!language)
+
+        }} />} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <FontAwesome name="user-circle" size={24} color="black" />
