@@ -2,16 +2,6 @@ import * as React from 'react';
 import { Text, View, Button, FlatList, SectionList } from 'react-native';
 import Constants from 'expo-constants';
 
-const TaskList = [
-    {
-        title: "Incomplete Tasks",
-        data: ["a", "b", "c"]
-    },
-    {
-        title: "Completed Task",
-        data: ["a", "b", "c"]
-    },
-];
 
 const Item = ({ title }) => (
     <View style={styles.item}>
@@ -21,28 +11,61 @@ const Item = ({ title }) => (
 
 
 export default function TodoList() {
+    const [tasks, setTasks] = useState([
+        { title: 'Task 1', dueDate: '2022-05-01', completed: false },
+        { title: 'Task 2', dueDate: '2022-05-02', completed: true },
+        { title: 'Task 3', dueDate: '2022-05-03', completed: false },
+        { title: 'Task 4', dueDate: '2022-05-04', completed: true },
+    ]);
+
+    const [selectedTask, setSelectedTask] = useState(null);
+
+    const handleTaskClick = (task) => {
+        setSelectedTask(task);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedTask(null);
+    };
+
+    const sections = [
+        {
+          title: 'Completed Tasks',
+          data: tasks.filter((task) => task.completed),
+        },
+        {
+          title: 'Incomplete Tasks',
+          data: tasks.filter((task) => !task.completed),
+        },
+      ];
+
     return (
         <>
 
 
-            <View style={styles.container2}>
-
-                <Text>Todo List</Text>
-                <Text>{"\n\n\n\n"}</Text>
-                <SectionList
-                    sections={TaskList}
-                    keyExtractor={(item, index) => item + index}
-                    renderItem={({ item }) => <Item title={item} />}
-                    renderSectionHeader={({ section: { title } }) => (
-                        <View style={styles.container3}>
-                        <Text style={styles.header}>{title}</Text>
-                        </View>
-                    )}/>
-                <Text>-----------------------</Text>
-                <Text>Todo</Text>
-                <Text>All of your work is completed!</Text>
-
-            </View>
+<View>
+      <SectionList
+        sections={sections}
+        keyExtractor={(item, index) => item + index}
+        renderItem={({ item }) => (
+          <View>
+            <Text onPress={() => handleTaskClick(item)}>
+              {item.title} - {item.dueDate}
+            </Text>
+          </View>
+        )}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={{ fontWeight: 'bold' }}>{title}</Text>
+        )}
+      />
+      {selectedTask && (
+        <View>
+          <Text>{selectedTask.title}</Text>
+          <Text>Due Date: {selectedTask.dueDate}</Text>
+          <Text onPress={handleCloseModal}>Close</Text>
+        </View>
+      )}
+    </View>
 
         </>
     );
@@ -77,12 +100,13 @@ var styles = {
         backgroundColor: "#f9c2ff",
         padding: 20,
         marginVertical: 8,
-        
+
     },
     header: {
         fontSize: 10,
-        fontWeight:"bold",
-        
+        fontWeight: "bold",
+
+
     },
     title: {
         backgroundColor: "#f9c2ff",
