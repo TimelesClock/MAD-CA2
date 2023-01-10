@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { AsyncStorage } from 'react-native'
 import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
@@ -52,12 +53,12 @@ function DeleteCountDown() {
         text = "Confirm Deletion"
         deleteEnabled = true
         clearTimeout(timer)
-        
+
     }
     return (
         <>
-            <Text style = {{fontWeight:"bold",marginTop:60}}>Delete button will unlock in {second} seconds</Text>
-            <Pressable disabled = {deleteEnabled} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,marginVertical:60 }]}>
+            <Text style={{ fontWeight: "bold", marginTop: 60 }}>Delete button will unlock in {second} seconds</Text>
+            <Pressable disabled={deleteEnabled} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
                 <Text style={{ fontWeight: "bold", color: "black" }}>{text}</Text>
             </Pressable>
         </>
@@ -68,7 +69,7 @@ function DeleteCountDown() {
 export default function ProfileScreen() {
     const [LoginModal, setLoginModal] = React.useState(false);
     const [ResetModal, setResetModal] = React.useState(false);
-    const [language,setLanguage] = React.useState(false)
+    const [language, setLanguage] = React.useState(false)
     return (
         <>
             <Modal
@@ -116,8 +117,8 @@ export default function ProfileScreen() {
                             onPress={() => setResetModal(!ResetModal)}>
                             <AntDesign name="closecircle" size={24} color="black" />
                         </Pressable>
-                        <Text style = {{fontWeight:"bold"}}>Delete all data confirmation</Text>
-                        <Text style = {{fontWeight:"bold",marginTop:40}}>All Collections and Notes will be deleted forever</Text>
+                        <Text style={{ fontWeight: "bold" }}>Delete all data confirmation</Text>
+                        <Text style={{ fontWeight: "bold", marginTop: 40 }}>All Collections and Notes will be deleted forever</Text>
                         <DeleteCountDown />
 
                     </View>
@@ -134,9 +135,9 @@ export default function ProfileScreen() {
 
             </View>
             <View style={{ flex: 5 }}>
-                <Text style={{ fontWeight: "bold", fontSize: 30, paddingBottom: 40, paddingLeft: 20 }}>{!language?"Settings":"设置"}</Text>
+                <Text style={{ fontWeight: "bold", fontSize: 30, paddingBottom: 40, paddingLeft: 20 }}>{!language ? "Settings" : "设置"}</Text>
                 <View style={{}}>
-                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language?"Theme":"颜色主题"}</Text>
+                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Theme" : "颜色主题"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
                         <Pressable style={[styles.button, { backgroundColor: "#000000", width: 180 }]}>
                             <Text style={{ fontWeight: "bold", color: "white" }}>Dark</Text>
@@ -147,21 +148,33 @@ export default function ProfileScreen() {
                     </View>
                 </View>
                 <View style={{ paddingTop: 40 }}>
-                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language?"Language":"语言"}</Text>
+                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Language" : "语言"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
-                        <Pressable onPress = {()=>{setLanguage(!language)}} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
-                            <Text style={[{ fontWeight: "bold", color: "black" },!language?{opacity:.5}:{opacity:1}]}>English</Text>
+                        <Pressable onPress={() => {
+                            setLanguage(!language)
+                            _storeData = async () => {
+                                try {
+                                    await AsyncStorage.setItem(
+                                        'language',
+                                        language,
+                                    );
+                                } catch (error) {
+                                    // Error saving data
+                                }
+                            };
+                        }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
+                            <Text style={[{ fontWeight: "bold", color: "black" }, !language ? { opacity: .5 } : { opacity: 1 }]}>English</Text>
                         </Pressable>
-                        <Pressable onPress = {()=>{setLanguage(!language)}} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
-                            <Text style={[{ fontWeight: "bold", color: "black" },language?{opacity:.5}:{opacity:1}]}>华文</Text>
+                        <Pressable onPress={() => { setLanguage(!language) }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
+                            <Text style={[{ fontWeight: "bold", color: "black" }, language ? { opacity: .5 } : { opacity: 1 }]}>华文</Text>
                         </Pressable>
                     </View>
                 </View>
                 <View style={{ paddingTop: 40 }}>
-                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language?"Reset":"重置"}</Text>
+                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Reset" : "重置"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
                         <Pressable onPress={() => setResetModal(true)} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
-                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language?"Delete all data":"删除所有数据"}</Text>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Delete all data" : "删除所有数据"}</Text>
                         </Pressable>
                     </View>
                 </View>
