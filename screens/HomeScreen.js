@@ -85,7 +85,7 @@ export default function HomeScreen() {
           <Text>You have no events scheduled</Text>
           <Text>{"\n\n\n\n"}</Text>
 
-          <Text>-----------------------</Text>
+          <Text style = {{fontWeight:"bold"}}>------------------------------------------------------------</Text>
           <Text>Todo</Text>
           <Text>All of your work is completed!</Text>
 

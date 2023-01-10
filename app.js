@@ -51,7 +51,7 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name="Todo" component={HomeScreen} options={{
+        <Tab.Screen name="Todo" component={TodoList} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <Foundation name="clipboard-notes" size={24} color="black" />
