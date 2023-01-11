@@ -7,8 +7,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 
-import * as Updates from 'expo-updates';
-
 
 
 
