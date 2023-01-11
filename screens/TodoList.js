@@ -1,7 +1,10 @@
 import * as React from 'react';
 import { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, View, Button, FlatList, SectionList, Modal } from 'react-native';
 import Constants from 'expo-constants';
+import { AntDesign } from '@expo/vector-icons'; 
 
 
 const Item = ({ title }) => (
@@ -9,6 +12,18 @@ const Item = ({ title }) => (
     <Text style={styles.title}>{title}</Text>
   </View>
 );
+
+function TodoScreen ({ navigation }) {
+  return (
+    <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'flex-start' }}>
+      <Text>Details Screen</Text>
+      <AntDesign style = {{alignItems:'flex-end'}} name="pluscircle" size={24} color="black" 
+          onPress={() => navigation.push('Details')}/>
+
+    </View>
+  );
+}
+const Stack = createNativeStackNavigator();
 
 
 export default function TodoList() {
@@ -59,7 +74,11 @@ export default function TodoList() {
   return (
     <>
 
-
+<NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Details" component={TodoScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
       <View style={{...styles.container2, /*backgroundColor:"#f9c2ff"*/ }}>
         <SectionList
           sections={sections}
