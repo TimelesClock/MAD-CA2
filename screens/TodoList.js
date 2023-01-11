@@ -2,9 +2,9 @@ import * as React from 'react';
 import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text, View, Button, FlatList, SectionList, Modal } from 'react-native';
+import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker} from 'react-native';
 import Constants from 'expo-constants';
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons';
 
 
 const Item = ({ title }) => (
@@ -13,17 +13,8 @@ const Item = ({ title }) => (
   </View>
 );
 
-function TodoScreen ({ navigation }) {
-  return (
-    <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'flex-start' }}>
-      <Text>Details Screen</Text>
-      <AntDesign style = {{alignItems:'flex-end'}} name="pluscircle" size={24} color="black" 
-          onPress={() => navigation.push('Details')}/>
 
-    </View>
-  );
-}
-const Stack = createNativeStackNavigator();
+
 
 
 export default function TodoList() {
@@ -34,6 +25,10 @@ export default function TodoList() {
     { title: 'Java Assignment 1', dueDate: '2022-05-04', completed: true },
   ]);
 
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [taskTitle, setTaskTitle] = React.useState('');
+  const [taskDescription, setTaskDescription] = React.useState('');
+  const [taskDueDate, setTaskDueDate] = React.useState("");
   const [selectedTask, setSelectedTask] = React.useState(null);
 
   const handleTaskClick = (task) => {
@@ -43,10 +38,6 @@ export default function TodoList() {
   const handleCloseModal = () => {
     setSelectedTask(null);
   };
-
-  const getTimeLeft = () => {
-
-  }
 
 
   const [hiddenSections, setHiddenSections] = React.useState({});
@@ -71,47 +62,84 @@ export default function TodoList() {
     },
   ];
 
+  const handleSubmit = () => {
+    setModalVisible(false);
+    setTaskTitle('');
+    setTaskDescription('');
+    setTaskDueDate();
+  }
+
   return (
     <>
 
-<NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Details" component={TodoScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-      <View style={{...styles.container2, /*backgroundColor:"#f9c2ff"*/ }}>
+      <View style={{ ...styles.container2, /*backgroundColor:"#f9c2ff"*/ }}>
         <SectionList
           sections={sections}
           keyExtractor={(item, index) => item + index}
           renderItem={({ item, section }) => {
             if (!hiddenSections[section.title]) {
-                return (
-                    <View>
-                        <Text style={styles.item} onPress={() => handleTaskClick(item)}>
-                            {item.title}  {item.dueDate}
-                        </Text>
-                    </View>
-                );
+              return (
+                <View>
+                  <Text style={styles.item} onPress={() => handleTaskClick(item)}>
+                    {item.title}  {item.dueDate}
+                  </Text>
+                </View>
+              );
             } else {
-                return null;
+              return null;
             }
-        }}
-        renderSectionHeader={({ section: { title } }) => (
-          <View>
-              <Text style={ styles.header} onPress={() => handleSectionPress(title)}>{title}</Text>
-          </View>
-      )}
+          }}
+          renderSectionHeader={({ section: { title } }) => (
+            <View>
+              <Text style={styles.header} onPress={() => handleSectionPress(title)}>{title}</Text>
+            </View>
+          )}
         />
+        <View style={{ alignSelf: 'flex-end', position: 'absolute', top: 600, right: 10 }}>
+          <AntDesign name="pluscircle" size={60} color="black"
+            onPress={() => setModalVisible(true)} />
+        </View>
+        <Modal visible={modalVisible} animationType="fade" transparent={true}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContentAdd}>
+              <View style={styles.buttonContainer}>
+            <AntDesign name="closecircle" size={24} color="black" onPress={() => setModalVisible(false)}/>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Task Title"
+                onChangeText={text => setTaskTitle(text)}
+                value={taskTitle}
+              />
+              <TextInput
+                style={{...styles.input, minHeight: 100}}
+                placeholder="Task Description"
+                onChangeText={text => setTaskDescription(text)}
+                value={taskDescription}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Due Date"
+                onChangeText={text => setTaskDueDate(text)}
+                value={taskDueDate}
+              />
+              <View>
+              <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={() => setModalVisible(false)}>Submit</Text>
+               
+              </View>
+            </View>
+          </View>
+        </Modal>
         {selectedTask && (
           <Modal visible={!!selectedTask} animationType="fade" transparent={true}>
-          <View style={styles.modalContainer}>
+            <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                  {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
-                  {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate}</Text>}
-                  <Button title="Close" onPress={handleCloseModal} />
+                {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
+                {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate}</Text>}
+                <Button title="Close" onPress={handleCloseModal} />
               </View>
-          </View>
-      </Modal>
+            </View>
+          </Modal>
         )}
       </View>
 
@@ -158,7 +186,7 @@ var styles = {
   header: {
     fontSize: 15,
     fontWeight: "bold",
-    width : 300,
+    width: 300,
     textAlign: "left"
 
 
@@ -172,22 +200,61 @@ var styles = {
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     alignItems: "center",
     justifyContent: "center"
-},
-modalContent: {
+  },
+  modalContent: {
     backgroundColor: "#fff",
     padding: 20,
     alignSelf: "center",
     borderRadius: 10,
     width: '80%',
     maxWidth: 400
-},
-modalTitle: {
+  },
+  modalTitle: {
     fontSize: 24,
     marginBottom: 10,
     textAlign: 'center'
-},
-modalDueDate: {
+  },
+  modalDueDate: {
     fontSize: 18,
     marginBottom: 20
-}
+  },
+  modalContainer: {
+    flex: 1,
+    width: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+  },
+  modalContentAdd: {
+    backgroundColor: 'white',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: ''
+  },
+  input: {
+    textAlignVertical: 'top',
+    width: 250,
+    padding: 10,
+    marginBottom: 20,
+    marginHorizontal: 20,
+    borderWidth: 1,
+    borderRadius:10,
+    borderColor: 'gray',
+
+  },
+  buttonContainer: {
+    alignSelf:"flex-start",
+  },
+  buttonSubmit: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    overflow: "hidden",
+    paddingVertical: 6,
+    borderWidth: 1,
+    backgroundColor: "#D9D9D9",
+    width: 150
+  }
 };
