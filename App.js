@@ -56,7 +56,7 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name={!language ? "Home" : "主页"} children={() => <HomeScreen language={language}/>} options={{
+        <Tab.Screen name={!language ? "Home" : "主页"} component = {HomeScreen} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <Ionicons name="home" size={24} color="black" />

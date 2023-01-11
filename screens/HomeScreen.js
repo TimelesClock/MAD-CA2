@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { Text, View, Button } from 'react-native';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+
 
 class Li extends React.Component {
   render() {
@@ -55,8 +54,15 @@ async function GetEvents() {
 
 }
 
-export default function HomeScreen(props) {
-  const language = props.language
+export default function HomeScreen() {
+  const [language, setLanguage] = React.useState(false)
+  AsyncStorage.getItem("language")
+    .then((value) => {
+      setLanguage(value === 'true')
+    })
+    .catch((error) => {
+      console.error(error)
+    })
   return (
     <>
       <View style={styles.container}>
