@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Text, View, Button, FlatList, SectionList } from 'react-native';
+import { useState } from 'react';
+import { Text, View, Button, FlatList, SectionList, Modal } from 'react-native';
 import Constants from 'expo-constants';
 
 
@@ -11,14 +12,14 @@ const Item = ({ title }) => (
 
 
 export default function TodoList() {
-    const [tasks, setTasks] = useState([
+    const [tasks, setTasks] = React.useState([
         { title: 'Task 1', dueDate: '2022-05-01', completed: false },
         { title: 'Task 2', dueDate: '2022-05-02', completed: true },
         { title: 'Task 3', dueDate: '2022-05-03', completed: false },
         { title: 'Task 4', dueDate: '2022-05-04', completed: true },
     ]);
 
-    const [selectedTask, setSelectedTask] = useState(null);
+    const [selectedTask, setSelectedTask] = React.useState(null);
 
     const handleTaskClick = (task) => {
         setSelectedTask(task);
