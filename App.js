@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from './screens/HomeScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import TodoList from "./screens/TodoList"
-
+import NoteScreen from "./screens/NoteScreen"
 
 
 
@@ -42,7 +42,7 @@ export default function App() {
         })}
         initialRouteName={!language ? "Home" : "主页"}
       >
-        <Tab.Screen name={!language ? "Notes" : "笔记"} component={HomeScreen} options={{
+        <Tab.Screen name={!language ? "Notes" : "笔记"} children = {()=><NoteScreen files = {[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]} folders = {[{name: "Downloads"},{name: "Downldoads"}]}/>} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <FontAwesome5 name="sticky-note" size={24} color="black" />
