@@ -47,8 +47,9 @@ function DeleteCountDown(props) {
     const reset = props.reset
     const language = props.language
     var deleteEnabled = false
-    const [second, setSecond] = React.useState(10)
     var text = "🔒"
+    const [second, setSecond] = React.useState(10)
+    
     var timer = setTimeout(() => {
         setSecond(second - 1)
     }, 1000)
