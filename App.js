@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Text, View, Button } from 'react-native';
 import Constants from 'expo-constants';
 import { Foundation, Ionicons, FontAwesome, AntDesign, FontAwesome5 } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons'; 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer,useNavigation  } from '@react-navigation/native';
@@ -10,7 +11,8 @@ import HomeScreen from './screens/HomeScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import TodoList from "./screens/TodoList"
 import NoteScreen from "./screens/NoteScreen"
-import CalendarScrees from "./screens/calendar"
+import CalendarScreens from "./screens/calendar"
+import TimerScreens from "./screens/Timer"
 
 
 
@@ -50,10 +52,17 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name={!language ? "Calendar" : "日历"} component={CalendarScrees} options={{
+        <Tab.Screen name={!language ? "Calendar" : "日历"} component={CalendarScreens} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <AntDesign name="calendar" size={24} color="black" />
+            );
+          },
+        }} />
+        <Tab.Screen name={!language ? "Timer" : "计时器"} component={TimerScreens} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <MaterialIcons name="timer" size={24} color="black" />
             );
           },
         }} />
@@ -83,6 +92,7 @@ export default function App() {
         }} />
 
       </Tab.Navigator>
+
     </NavigationContainer>
   );
 }

@@ -1,14 +1,28 @@
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SectionList } from 'react-native';
+import { StyleSheet, Text, View, SectionList, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
+import { MaterialIcons } from '@expo/vector-icons'; 
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
+
+  const [language, setLanguage] = React.useState(false)
+  AsyncStorage.getItem("language")
+    .then((value) => {
+      setLanguage(value === 'true')
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+
+    
   const [dayEvents, setdayEvents] = React.useState([
     { title: 'MAD Assignment 2', Date: '2023-01-13', completed: false, selected: false },
     { title: 'BED Assignment 1', Date: '2023-01-03', completed: true, selected: false },
-    { title: 'Home-Based Learning Packege', Date: '2023-01-17', completed: false, selected: false },
+    { title: 'Home-Based Learning Packege', Date: '2023-01-17', caompleted: false, selected: false },
     { title: 'Java Assignment 1', Date: '2023-01-02', completed: true, selected: false },
 ]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -43,7 +57,11 @@ export default function App() {
     }
 }
 
+const navigation = useNavigation();
 
+  function handleTimerPress() {
+    navigation.navigate('Timer');
+  }
 
   return (
     <View style={styles.container}>
@@ -74,12 +92,22 @@ export default function App() {
           
           
             }}><Text style={{fontSize: 20}}>{item.title}</Text></View>}
-            renderSectionHeader={() => <Text style= {{fontSize:30, borderBottomWidth:1}}>Events for {selectedDate}</Text>}
+            renderSectionHeader={() => <Text style= {{fontSize:30, borderBottomWidth:1}}>{!language ? "Events for" : "今日活动："} {selectedDate}</Text>}
           />
         )}
       
         
       </View>
+      <View>
+      <TouchableOpacity onPress={handleTimerPress}>
+        <MaterialIcons 
+          style={{ alignSelf: 'flex-end', left: 170, margin: 10}} 
+          name="timer" 
+          size={60} 
+          color="black" 
+        />
+      </TouchableOpacity>
+    </View>
     </View>
 
   );
