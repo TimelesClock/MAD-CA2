@@ -2,22 +2,25 @@ import * as React from 'react';
 import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker} from 'react-native';
+import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker, Switch } from 'react-native';
 import Constants from 'expo-constants';
 import { AntDesign } from '@expo/vector-icons';
-
-
-const Item = ({ title }) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
-  </View>
-);
-
-
+import { Route } from "react-router-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
 export default function TodoList() {
+
+  const [language, setLanguage] = React.useState(false)
+  AsyncStorage.getItem("language")
+    .then((value) => {
+      setLanguage(value === 'true')
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+
   const [tasks, setTasks] = React.useState([
     { title: 'MAD Assignment 2', dueDate: '2023-01-13', completed: false },
     { title: 'BED Assignment 1', dueDate: '2023-01-03', completed: true },
@@ -25,11 +28,15 @@ export default function TodoList() {
     { title: 'Java Assignment 1', dueDate: '2022-05-04', completed: true },
   ]);
 
+
+  const [searchTask, setSearchTask] = React.useState('');
   const [modalVisible, setModalVisible] = React.useState(false);
   const [taskTitle, setTaskTitle] = React.useState('');
   const [taskDescription, setTaskDescription] = React.useState('');
   const [taskDueDate, setTaskDueDate] = React.useState("");
   const [selectedTask, setSelectedTask] = React.useState(null);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   const handleTaskClick = (task) => {
     setSelectedTask(task);
@@ -53,11 +60,11 @@ export default function TodoList() {
 
   const sections = [
     {
-      title: 'Completed Tasks',
+      title: !language ? "Complete" : "已完成",
       data: tasks.filter((task) => task.completed),
     },
     {
-      title: 'Incomplete Tasks',
+      title: !language ? "Incomplete" : "未完成",
       data: tasks.filter((task) => !task.completed),
     },
   ];
@@ -72,7 +79,16 @@ export default function TodoList() {
   return (
     <>
 
-      <View style={{ ...styles.container2, /*backgroundColor:"#f9c2ff"*/ }}>
+      <View style={{ ...styles.container2 }}>
+        <View style={{flexDirection:'row', borderBottomWidth:1, marginBottom: 10, paddingBottom:10,borderColor:'grey'}}>
+          <AntDesign style={{top:10 }} name="search1" size={30} color="black" />
+          <TextInput
+            style={{ backgroundColor: "#D7D7D7", width: '95%', height: 50, paddingLeft: 30, borderRadius: 30 }}
+            placeholder={!language ? "Search" : "搜索"}
+            onChangeText={text => setSearchTask(text)}
+            value={searchTask}
+          />
+        </View>
         <SectionList
           sections={sections}
           keyExtractor={(item, index) => item + index}
@@ -103,29 +119,47 @@ export default function TodoList() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContentAdd}>
               <View style={styles.buttonContainer}>
-            <AntDesign name="closecircle" size={24} color="black" onPress={() => setModalVisible(false)}/>
+                <AntDesign name="closecircle" size={24} color="black" onPress={() => setModalVisible(false)} />
               </View>
               <TextInput
                 style={styles.input}
-                placeholder="Task Title"
+                placeholder={!language ? "Task Title" : "任务标题"}
                 onChangeText={text => setTaskTitle(text)}
                 value={taskTitle}
               />
               <TextInput
-                style={{...styles.input, minHeight: 100}}
-                placeholder="Task Description"
+                style={{ ...styles.input, minHeight: 100 }}
+                placeholder={!language ? "Task Description" : "任务简介"}
                 onChangeText={text => setTaskDescription(text)}
                 value={taskDescription}
               />
               <TextInput
                 style={styles.input}
-                placeholder="Due Date"
+                placeholder={!language ? "Due Date" : "截止日期"}
                 onChangeText={text => setTaskDueDate(text)}
                 value={taskDueDate}
               />
-              <View>
-              <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={() => setModalVisible(false)}>Submit</Text>
-               
+              <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, borderTopColor: 'grey', borderTopWidth: 1, }}>
+                <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Reminder" : "提醒"}</Text>
+                <View style={{ maxWidth: "40%", flexDirection: "row", alignItems: 'center' }}>
+                  <Text style={{ fontSize: 12, color: "grey" }}>{!language ? "Two Days Before" : "两天前"}</Text>
+                  <AntDesign name="right" size={24} color="black" />
+                </View>
+              </View>
+              <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, borderTopColor: 'grey', borderTopWidth: 1 }}>
+                <Text style={{ fontSize: 20 }}>{!language ? "Sync to Calendar" : "同步至日历"}</Text>
+                <Switch
+                  style={{ bottom: 12 }}
+                  trackColor={{ false: "#767577", true: "#81b0ff" }}
+                  thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={toggleSwitch}
+                  value={isEnabled}
+                />
+              </View>
+              <View style={{ paddingTop: 10 }}>
+                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={() => setModalVisible(false)}>Submit</Text>
+
               </View>
             </View>
           </View>
@@ -162,7 +196,7 @@ var styles = {
     alignSelf: 'center',
     paddingTop: Constants.statusBarHeight,
     padding: 8,
-    width: 400
+    width: '95%'
   },
   container3: {
     alignItems: 'center',
@@ -175,11 +209,13 @@ var styles = {
     fontSize: 80
   },
   item: {
-    backgroundColor: "#f9c2ff",
+    backgroundColor: "#FFAAAA",
     padding: 10,
+    paddingVertical: 20,
     marginVertical: 4,
     fontSize: 20,
     borderRadius: 20,
+    width: '90%'
 
 
   },
@@ -240,12 +276,12 @@ var styles = {
     marginBottom: 20,
     marginHorizontal: 20,
     borderWidth: 1,
-    borderRadius:10,
+    borderRadius: 10,
     borderColor: 'gray',
 
   },
   buttonContainer: {
-    alignSelf:"flex-start",
+    alignSelf: "flex-start",
   },
   buttonSubmit: {
     alignItems: 'center',
