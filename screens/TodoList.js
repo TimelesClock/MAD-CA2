@@ -35,7 +35,7 @@ export default function TodoList() {
   const [taskDescription, setTaskDescription] = React.useState('');
   const [taskDueDate, setTaskDueDate] = React.useState("");
   const [selectedTask, setSelectedTask] = React.useState(null);
-  const [isEnabled, setIsEnabled] = useState(false);
+  const [isEnabled, setIsEnabled] = React.useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   const handleTaskClick = (task) => {

@@ -10,6 +10,7 @@ import HomeScreen from './screens/HomeScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import TodoList from "./screens/TodoList"
 import NoteScreen from "./screens/NoteScreen"
+import CalendarScrees from "./screens/calendar"
 
 
 
@@ -49,7 +50,7 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name={!language ? "Calendar" : "日历"} component={HomeScreen} options={{
+        <Tab.Screen name={!language ? "Calendar" : "日历"} component={CalendarScrees} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <AntDesign name="calendar" size={24} color="black" />
