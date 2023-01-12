@@ -4,7 +4,7 @@ import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'r
 import Constants from 'expo-constants';
 import { MaterialCommunityIcons, AntDesign, Feather } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 //Why does this feel like coding a DEUI prototype
 const FileInput = () => {
@@ -23,63 +23,28 @@ const FileInput = () => {
     )
 }
 
-function MoreModals(props) {
-    const title = props.title
-    const data = props.data
-    const unshow = props.unshow
-    const show = props.show
-    return (
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={show}
-            onRequestClose={() => {
-                Alert.alert("Modal has been closed.");
-                unshow();
-
-
-            }}
-        >
-            <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                    <Pressable
-                        style={{ alignSelf: "flex-start" }}
-                        onPress={() => unshow()}>
-                        <AntDesign name="closecircle" size={24} color="black" />
-                    </Pressable>
-                    <Text style={{ fontWeight: 'bold' }}>{title}</Text>
-                    <Text style={{ padding: 50 }}>{data}</Text>
-                </View>
-            </View>
-        </Modal>
-    )
-}
-
-function Folder(props) {
-    const [enabled, setEnabled] = React.useState(true)
-    const [second, setSecond] = React.useState(10)
+function Child(props) {
     const [filesModal, setFilesModal] = React.useState(false)
-    const [folderModal, setFolderModal] = React.useState(false)
+    const navigation = useNavigation();
+    const route = useRoute()
     const [Show, setShow] = React.useState(false)
-
-    const folders = props.folders.map((obj) =>
-        <Pressable style={{ marginHorizontal: 4 }} key={obj.name}>
-            <Text style={{ marginLeft: 5 }}>{obj.name}</Text>
-            <AntDesign name="folder1" size={180} color="black" />
-
-        </Pressable>
-    )
-    const file = props.files.map((i) =>
-        <>
-            <MoreModals title={i.name} data={i.data} unshow = {()=> setShow(!Show)} show = {Show} />
-            <Pressable onPress = {()=>{setShow(!Show)}} style={{ marginHorizontal: 4 }} key={i.name}>
-                <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
-                    <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
-                    <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
-                </View>
-            </Pressable>
-        </>
-    )
+    var file2
+    if (!route.params || route.params.files.length == 0) {
+        file2 = <></>
+    } else {
+        const data = route.params.files
+        file2 = data.map((i, iteration) =>
+            <>
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} />
+                <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name + iteration}>
+                    <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
+                        <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
+                        <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
+                    </View>
+                </Pressable>
+            </>
+        )
+    }
 
     return (
         <>
@@ -108,12 +73,164 @@ function Folder(props) {
                     </View>
                 </View>
             </Modal>
+            <View style={{ margin: 15, flexDirection: "row", flexWrap: "wrap" }}>
+                {file2}
+            </View>
+            <Pressable onPress={() => { setFilesModal(!filesModal) }} style={{ alignSelf: 'flex-end', position: 'absolute', top: 530, right: 10 }}>
+                <MaterialCommunityIcons name="note-plus-outline" size={60} color="black" />
+            </Pressable>
+        </>
+    )
+}
+
+function DeleteConfirm(props){
+    const unshow2 = props.unshow2
+    const unshow = props.unshow
+    const show = props.show
+    return (
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={show}
+            onRequestClose={() => {
+
+                unshow();
+
+
+            }}
+        >
+            <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                <Pressable
+                        style={{ alignSelf: "flex-start" }}
+                        onPress={() => unshow()}>
+                        <AntDesign name="closecircle" size={24} color="black" />
+                    </Pressable>
+                    <Pressable onPress = {()=>{unshow2()}} style = {[styles.button,{marginTop:50}]}>
+                        <Text style = {{fontWeight:'bold'}}>
+                            Confirm Deletion
+                        </Text>
+                    </Pressable>
+
+                </View>
+            </View>
+        </Modal>
+    )
+}
+
+function MoreModals(props) {
+    const del = props.del
+    const title = props.title
+    const data = props.data
+    const unshow = props.unshow
+    const show = props.show
+    //What is sleep
+    return (
+        
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={show}
+            onRequestClose={() => {
+
+                unshow();
+
+
+            }}
+        >
+            
+            <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                    <Pressable
+                        style={{ alignSelf: "flex-start" }}
+                        onPress={() => unshow()}>
+                        <AntDesign name="closecircle" size={24} color="black" />
+                    </Pressable>
+                    <Text style={{ fontWeight: 'bold' }}>{title}</Text>
+                    <Text style={{ padding: 50 }}>{data}</Text>
+                    <Pressable onPress = {()=>{del()}} style={{ alignSelf: "flex-end" }}>
+                        <Feather  name="trash-2" size={24} color="black" />
+                    </Pressable>
+                    
+                </View>
+            </View>
+        </Modal>
+    )
+}
+
+function Folder(props) {
+    const [enabled, setEnabled] = React.useState(true)
+    const [filesModal, setFilesModal] = React.useState(false)
+    const [folderModal, setFolderModal] = React.useState(false)
+    const [Show, setShow] = React.useState(false)
+    const [Show2, setShow2] = React.useState(false)
+    const navigation = useNavigation();
+    const route = useRoute()
+    var folders
+    var file
+    if (!props.folders) {
+        folders = <></>
+    } else {
+        folders = props.folders.map((obj, iteration) =>
+            <Pressable onPress={() => {
+                navigation.push("Child", { "files": obj.files })
+            }} style={{ marginHorizontal: 4 }} key={iteration}>
+                <Text style={{ marginLeft: 5 }}>{obj.name}</Text>
+                <AntDesign name="folder1" size={180} color="black" />
+
+            </Pressable>
+        )
+    }
+    if (!props.folders) {
+        file = <></>
+    } else {
+        file = props.files.map((i) =>
+            <>
+                <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} del = {()=>{setShow2(!Show2)}} />
+                <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name}>
+                    <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
+                        <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
+                        <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
+                    </View>
+                </Pressable>
+            </>
+        )
+    }
+
+
+
+    return (
+        <>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={filesModal}
+                onRequestClose={() => {
+                    setFilesModal(!filesModal);
+                }}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <Pressable
+                            style={{ alignSelf: "flex-start" }}
+                            onPress={() => setFilesModal(!filesModal)}>
+                            <AntDesign name="closecircle" size={24} color="black" />
+                        </Pressable>
+                        <Text style={{ fontWeight: 'bold' }}>New Notes</Text>
+                        <Text style={{ padding: 50, fontWeight: 'bold' }}>New Name:</Text>
+                        <FileInput />
+                        <Pressable onPress={() => { setFilesModal(!filesModal) }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={folderModal}
                 onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
                     setFolderModal(!folderModal);
 
                 }}
@@ -168,9 +285,10 @@ export default function NoteScreen(props) {
         <>
             <MainStack.Navigator screenOptions={{
                 title: "",
-                headerShown: false
+
             }}>
-                <MainStack.Screen name="Main" children={() => <Folder files={props.files} folders={props.folders} />} />
+                <MainStack.Screen options={{ headerShown: false }} name="Main" children={() => <Folder files={props.files} folders={props.folders} />} />
+                <MainStack.Screen name="Child" component={Child} />
             </MainStack.Navigator>
         </>
     )

@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker, Switch } from 'react-native';
 import Constants from 'expo-constants';
 import { AntDesign } from '@expo/vector-icons';
-import { Route } from "react-router-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
