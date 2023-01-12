@@ -26,7 +26,6 @@
     "expo-status-bar": "~1.4.0",
     "intl": "^1.2.5",
     "react": "18.1.0",
-    "react-calendar": "^4.0.0",
     "react-native": "0.70.5",
     "react-native-async-storage": "^0.0.1",
     "react-native-calendars": "^1.1293.0",
@@ -38,8 +37,7 @@
     "react-native-safe-area-context": "4.4.1",
     "react-native-screens": "~3.18.0",
     "react-native-tab-view": "^3.0.0",
-    "react-navigation": "^4.4.4",
-    "react-router-native": "^6.6.2"
+    "react-navigation": "^4.4.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

@@ -43,7 +43,7 @@ export default function App() {
         })}
         initialRouteName={!language ? "Home" : "主页"}
       >
-        <Tab.Screen name={!language ? "Notes" : "笔记"} children = {()=><NoteScreen files = {[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]} folders = {[{name: "Downloads"},{name: "Downldoads"}]}/>} options={{
+        <Tab.Screen name={!language ? "Notes" : "笔记"} children = {()=><NoteScreen files = {[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]} folders = {[{name: "Downloads",files:[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]},{name: "Downldoads",files:[]  }]}/>} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <FontAwesome5 name="sticky-note" size={24} color="black" />
