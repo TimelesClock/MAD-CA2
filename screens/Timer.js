@@ -1,40 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function CountdownTimer() {
 
+
+export default function CountdownTimer() {
     const [language, setLanguage] = React.useState(false)
-  AsyncStorage.getItem("language")
-    .then((value) => {
-      setLanguage(value === 'true')
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+    AsyncStorage.getItem("language")
+        .then((value) => {
+            setLanguage(value === 'true')
+        })
+        .catch((error) => {
+            console.error(error)
+        })
 
     const [time, setTime] = useState(0);
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
+    var timer
+    React.useEffect(() => {
 
-    useEffect(() => {
-        var interval = null;
-        var totalSeconds = hours * 3600 + minutes * 60 + seconds;
-        setTime(totalSeconds);
-        if (isRunning) {
-
-            interval = setInterval(() => {
+        if (time > 0 && isRunning) {
+            timer = setTimeout(() => {
                 setTime(time => time - 1);
             }, 1000);
-        } else if (!isRunning && time !== 0) {
-            clearInterval(interval);
+        } else if (isRunning && time <= 0) {
+            Alert.alert('Timer', 'Timer is up!')
+            clearTimeout(timer)
         }
-        return () => clearInterval(interval);
-    }, [isRunning, hours, minutes, seconds]);
+
+        else {
+            clearTimeout(timer);
+        }
+        return () => {
+            clearTimeout(timer)
+        };
+    }, [isRunning, hours, minutes, seconds, time]);
 
     function handleStart() {
+        var totalSeconds = hours * 3600 + minutes * 60 + seconds;
+        setTime(totalSeconds);
         setIsRunning(true);
     }
 
@@ -46,6 +53,7 @@ export default function CountdownTimer() {
         setHours(0);
         setMinutes(0);
         setSeconds(0);
+        setTime(0)
         setIsRunning(false);
     }
 
@@ -64,8 +72,8 @@ export default function CountdownTimer() {
     }
 
     return (
-        <View style={{ top: 200}}>
-            <View style={{ flexDirection: 'row', width: 395, justifyContent:'space-evenly'}}>
+        <View style={{ top: 200 }}>
+            <View style={{ flexDirection: 'row', width: 395, justifyContent: 'space-evenly' }}>
                 <Text style={{ fontSize: 20, fontWeight: 'bold', textAlignVertical: 'center', left: 5 }}>{!language ? "Hours:" : "时："}</Text>
                 <TextInput
                     style={styles.input}
@@ -132,5 +140,4 @@ const styles = {
 
     },
 };
-
 

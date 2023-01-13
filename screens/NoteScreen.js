@@ -35,7 +35,7 @@ function Child(props) {
         const data = route.params.files
         file2 = data.map((i, iteration) =>
             <>
-                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} />
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} key = {iteration+i.name} />
                 <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name + iteration}>
                     <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
@@ -184,10 +184,10 @@ function Folder(props) {
     if (!props.folders) {
         file = <></>
     } else {
-        file = props.files.map((i) =>
+        file = props.files.map((i,iteration) =>
             <>
-                <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
-                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} del = {()=>{setShow2(!Show2)}} />
+                <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} key = {"DeleteConfirm"} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} del = {()=>{setShow2(!Show2)}} key = {"moreModals"}/>
                 <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name}>
                     <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
