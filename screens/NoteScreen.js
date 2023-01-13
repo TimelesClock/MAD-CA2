@@ -180,14 +180,14 @@ function Folder(props) {
         folders = props.folders.map((obj, iteration) =>
             <Pressable onPress={() => {
                 navigation.push("Child", { "files": obj.files })
-            }} style={{ marginHorizontal: 4 }} key={iteration}>
+            }} style={{ marginHorizontal: 4,padding:5 }} key={iteration}>
                 <Text style={{ marginLeft: 5 }}>{obj.name}</Text>
-                <AntDesign name="folder1" size={180} color="black" />
+                <AntDesign name="folder1" size={160} color="black" />
 
             </Pressable>
         )
     }
-    if (!props.folders) {
+    if (!props.files) {
         file = <></>
     } else {
         file = props.files.map((i,iteration) =>
@@ -195,9 +195,9 @@ function Folder(props) {
                 <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} key = {"DeleteConfirm"} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
                 <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} del = {()=>{setShow2(!Show2)}} key = {"moreModals"}/>
                 <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name}>
-                    <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
+                    <View style={{ borderWidth: 1, width: 170, height: 170, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
-                        <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
+                        <Text numberOfLines={7} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
                     </View>
                 </Pressable>
             </>
