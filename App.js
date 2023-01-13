@@ -8,10 +8,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer,useNavigation  } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from './screens/HomeScreen'
+
+import CalendarScreen from './screens/CalendarScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import TodoList from "./screens/TodoList"
 import NoteScreen from "./screens/NoteScreen"
-import CalendarScreens from "./screens/calendar"
+import CalendarScreens from "./screens/CalendarScreen"
 import TimerScreens from "./screens/Timer"
 
 
@@ -45,6 +47,20 @@ export default function App() {
         })}
         initialRouteName={!language ? "Home" : "主页"}
       >
+        <Tab.Screen name={!language ? "Home" : "主页"} component = {HomeScreen} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Ionicons name="home" size={24} color="black" />
+            );
+          },
+        }} />
+        <Tab.Screen name={!language ? "Todo" : "待办"} component={TodoList} options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <Foundation name="clipboard-notes" size={24} color="black" />
+            );
+          },
+        }} />
         <Tab.Screen name={!language ? "Notes" : "笔记"} children = {()=><NoteScreen files = {[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]} folders = {[{name: "Downloads",files:[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]},{name: "Downldoads",files:[]  }]}/>} options={{
           tabBarIcon: ({ focused }) => {
             return (
@@ -66,20 +82,8 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name={!language ? "Home" : "主页"} component = {HomeScreen} options={{
-          tabBarIcon: ({ focused }) => {
-            return (
-              <Ionicons name="home" size={24} color="black" />
-            );
-          },
-        }} />
-        <Tab.Screen name={!language ? "Todo" : "待办"} component={TodoList} options={{
-          tabBarIcon: ({ focused }) => {
-            return (
-              <Foundation name="clipboard-notes" size={24} color="black" />
-            );
-          },
-        }} />
+        
+        
         <Tab.Screen name={!language ? "Profile" : "资料"} children={() => <ProfileScreen language={language}  rerender={(navigation) => {
           setLanguage(!language)
 
