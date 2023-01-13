@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Text, View, Button } from 'react-native';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
 
 
 class Li extends React.Component {
@@ -45,14 +44,6 @@ const TimeMessage = function (props) {
   return <Text style={{ fontSize: 30 }}> {message}</Text>
 }
 
-async function GetEvents() {
-
-
-
-
-
-
-}
 
 export default function HomeScreen() {
   const [language, setLanguage] = React.useState(false)

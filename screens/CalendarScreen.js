@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StatusBar } from 'expo-status-bar';
+
 import { StyleSheet, Text, View, SectionList, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { Calendar } from 'react-native-calendars';

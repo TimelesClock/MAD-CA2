@@ -3,12 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
-
-
-
 
 const EmailInput = () => {
     const [email, onChangeEmail] = React.useState();

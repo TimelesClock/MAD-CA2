@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Text, View, Button } from 'react-native';
+import { Text } from 'react-native';
 import Constants from 'expo-constants';
 import { Foundation, Ionicons, FontAwesome, AntDesign, FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons'; 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer,useNavigation  } from '@react-navigation/native';
+
+import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -84,8 +84,6 @@ export default function App() {
             );
           },
         }} />
-        
-        
         <Tab.Screen name={!language ? "Profile" : "资料"} children={() => <ProfileScreen language={language}  rerender={(navigation) => {
           setLanguage(!language)
 

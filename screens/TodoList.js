@@ -1,7 +1,4 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker, Switch } from 'react-native';
 import Constants from 'expo-constants';
 import { AntDesign } from '@expo/vector-icons';
