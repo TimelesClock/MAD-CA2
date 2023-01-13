@@ -83,7 +83,7 @@ const navigation = useNavigation();
 
       </View>
       <View style={{ flex: 1 }}>
-        {selectedEvents.length > 0 && (
+        {(
           <SectionList
             sections={[{ data: selectedEvents }]}
             keyExtractor={(item) => item.title}
