@@ -1,3 +1,9 @@
+// Name: Ken Li Jia Jie
+
+// Admission Number: P2227704
+
+// Class: DIT/FT/1B/02
+
 import * as React from 'react';
 import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker, Switch } from 'react-native';
 import Constants from 'expo-constants';

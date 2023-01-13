@@ -1,3 +1,9 @@
+// Name: Leong Yu Zhi Andy
+
+// Admission Number: P2205865
+
+// Class: DIT/FT/1B/02
+
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';

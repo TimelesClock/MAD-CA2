@@ -1,3 +1,12 @@
+// Name: Leong Yu Zhi Andy
+
+// Admission Number: P2205865
+
+// Class: DIT/FT/1B/02
+
+
+
+
 import * as React from 'react';
 import { Text } from 'react-native';
 import Constants from 'expo-constants';

@@ -1,12 +1,40 @@
-# Sample Snack app
 
-Open the `App.js` file to start writing some code. You can preview the changes directly on your phone or tablet by scanning the **QR code** or use the iOS or Android emulators. When you're done, click **Save** and share the link!
+Done by
 
-When you're ready to see everything that Expo provides (or if you want to use your own editor) you can **Download** your project and use it with [expo-cli](https://docs.expo.io/get-started/installation).
+Name: Leong Yu Zhi Andy
 
-All projects created in Snack are publicly available, so you can easily share the link to this project via link, or embed it on a web page with the `<>` button.
+Admission Number: P2205865
 
-If you're having problems, you can tweet to us [@expo](https://twitter.com/expo) or ask in our [forums](https://forums.expo.io/c/snack).
+Class: DIT/FT/1B/02
 
-Snack is Open Source. You can find the code on the [GitHub repo](https://github.com/expo/snack).
-#MAD-CA2
+and
+
+Name: Ken Li Jia Jie
+
+Admission Number: P2227704
+
+Class: DIT/FT/1B/02
+
+>> npm install
+>>
+
+before running the app using
+
+>> npm run android
+>> npm run ios
+>> npm run tunnel
+>>
+
+**Screens**
+Home Screen Page (Andy)
+Todo List Page (Ken)
+Notes Page (Andy)
+Calendar Page (Ken)
+Timer Page (Ken)
+Profile Page (Andy)
+
+**Total Contribution to Asssignment 2**
+Leong Yu Zhi Andy (50%)
+Ken Li Jia Jie (50%)
+
+Total: 100%
