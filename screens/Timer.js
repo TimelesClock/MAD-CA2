@@ -34,6 +34,7 @@ export default function CountdownTimer() {
         } else if (isRunning && time <= 0) {
             Alert.alert('Timer', 'Timer is up!')
             clearTimeout(timer)
+            setIsRunning(false)
         }
 
         else {
@@ -84,7 +85,7 @@ export default function CountdownTimer() {
                     style={styles.input}
                     keyboardType='numeric'
                     onChangeText={handleHoursChange}
-                    value={hours.toString()}
+                    value={hours.toString().replace(/[^0-9]/g, '')}
                 />
 
                 <Text style={{ fontSize: 20, fontWeight: 'bold', textAlignVertical: 'center', left: 5 }}>{!language ? "Minutes:" : "分："}</Text>
@@ -92,14 +93,14 @@ export default function CountdownTimer() {
                     style={styles.input}
                     keyboardType='numeric'
                     onChangeText={handleMinutesChange}
-                    value={minutes.toString()}
+                    value={minutes.toString().replace(/[^0-9]/g, '')}
                 />
                 <Text style={{ fontSize: 20, fontWeight: 'bold', textAlignVertical: 'center', left: 5 }}>{!language ? "Seconds:" : "秒："}</Text>
                 <TextInput
                     style={styles.input}
                     keyboardType='numeric'
                     onChangeText={handleSecondsChange}
-                    value={seconds.toString()}
+                    value={seconds.toString().replace(/[^0-9]/g, '')}
                 />
             </View>
             <View style={{ alignSelf: 'center' }}>

@@ -30,6 +30,7 @@ const FileInput = () => {
 }
 
 function Child(props) {
+    const [Show2, setShow2] = React.useState(false)
     const [filesModal, setFilesModal] = React.useState(false)
     const navigation = useNavigation();
     const route = useRoute()
@@ -41,7 +42,8 @@ function Child(props) {
         const data = route.params.files
         file2 = data.map((i, iteration) =>
             <>
-                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} key = {iteration+i.name} />
+                <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} key = {"DeleteConfirm"} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} del = {()=>{setShow2(!Show2)}}  key = {iteration+i.name} />
                 <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name + iteration}>
                     <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
