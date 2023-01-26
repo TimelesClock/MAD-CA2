@@ -1,6 +1,6 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Alert, Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
+import { Alert, Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 
@@ -10,15 +10,28 @@ import PasswordInput from '../components/ProfileScreen/PasswordInput'
 import Auth from '../components/ProfileScreen/Auth'
 
 import 'react-native-url-polyfill/auto'
-import {supabase} from '../supabase'
+import { supabase } from '../supabase'
+
+function Profile(props) {
+    const language = props.language
+    const open = props.open
+    return (
+        <>
+            <Text style={{ marginLeft: 8, paddingBottom: 20 }}>{!language ? "You are not logged in!" : "你没有登录!"}</Text>
+            <Pressable style={styles.button} onPress={() => open()}>
+                <Text style={{ fontWeight: "bold" }} >{!language ? "Login" : "登录"}</Text>
+            </Pressable>
+        </>
+    )
+}
 
 export default function ProfileScreen(props) {
     const [LoginModal, setLoginModal] = React.useState(false);
     const [ResetModal, setResetModal] = React.useState(false);
     const language = props.language
     const rerender = props.rerender
-    const [email,onChangeEmail] = React.useState()
-    const [password,onChangePassword] = React.useState()
+    const [email, onChangeEmail] = React.useState()
+    const [password, onChangePassword] = React.useState()
 
     return (
         <>
@@ -30,7 +43,7 @@ export default function ProfileScreen(props) {
                     setLoginModal(!LoginModal);
                 }}
             >
-                <Auth close = {()=>{setLoginModal(!LoginModal)}}/>
+                <Auth close={() => { setLoginModal(!LoginModal) }} />
             </Modal>
             <Modal
                 animationType="slide"
@@ -64,10 +77,7 @@ export default function ProfileScreen(props) {
             <View style={{ flex: 1, flexDirection: "row", borderBottomWidth: 2 }}>
                 <Ionicons style={{ flex: 1 }} name="person-circle-outline" size={75} color="black" />
                 <View style={{ flex: 2, paddingTop: Constants.statusBarHeight }}>
-                    <Text style={{ marginLeft: 8, paddingBottom: 20 }}>{!language ? "You are not logged in!" : "你没有登录!"}</Text>
-                    <Pressable style={styles.button} onPress={() => setLoginModal(true)}>
-                        <Text style={{ fontWeight: "bold" }} >{!language ? "Login" : "登录"}</Text>
-                    </Pressable>
+                    <Profile language = {language} open = {()=>{setLoginModal(true)}}/>
                 </View>
 
             </View>

@@ -22,6 +22,7 @@ export default function Auth(props) {
                     Alert.alert(error.message)
                 }else{
                     AsyncStorage.setItem("access_token",data.session.access_token)
+                    close()
                 }
 
                 setLoading(false)
@@ -69,6 +70,7 @@ export default function Auth(props) {
                     autoCapitalize={'none'}
                 />
             </View>
+            <Text style = {[loading ? {opacity:1}:{opacity:0}]}>Loading...</Text>
             <View style={[styles.verticallySpaced, styles.mt20]}>
                 <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
             </View>

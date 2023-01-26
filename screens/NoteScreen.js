@@ -28,6 +28,7 @@ function Child(props) {
     const navigation = useNavigation();
     const route = useRoute()
     const [Show, setShow] = React.useState(false)
+    const [Show2, setShow2] = React.useState(false)
     var file2
     if (!route.params || route.params.files.length == 0) {
         file2 = <></>
@@ -35,7 +36,8 @@ function Child(props) {
         const data = route.params.files
         file2 = data.map((i, iteration) =>
             <>
-                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} key = {iteration+i.name} />
+                <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} key = {"DeleteConfirm"} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} del = {()=>{setShow2(!Show2)}} show={Show} key = {iteration+i.name} />
                 <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name + iteration}>
                     <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
@@ -53,7 +55,6 @@ function Child(props) {
                 transparent={true}
                 visible={filesModal}
                 onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
                     setFilesModal(!filesModal);
                 }}
             >
