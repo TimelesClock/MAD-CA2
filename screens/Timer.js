@@ -1,8 +1,3 @@
-// Name: Ken Li Jia Jie
-
-// Admission Number: P2227704
-
-// Class: DIT/FT/1B/02
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Text, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,7 +29,6 @@ export default function CountdownTimer() {
         } else if (isRunning && time <= 0) {
             Alert.alert('Timer', 'Timer is up!')
             clearTimeout(timer)
-            setIsRunning(false)
         }
 
         else {
@@ -85,7 +79,7 @@ export default function CountdownTimer() {
                     style={styles.input}
                     keyboardType='numeric'
                     onChangeText={handleHoursChange}
-                    value={hours.toString().replace(/[^0-9]/g, '')}
+                    value={hours.toString()}
                 />
 
                 <Text style={{ fontSize: 20, fontWeight: 'bold', textAlignVertical: 'center', left: 5 }}>{!language ? "Minutes:" : "分："}</Text>
@@ -93,14 +87,14 @@ export default function CountdownTimer() {
                     style={styles.input}
                     keyboardType='numeric'
                     onChangeText={handleMinutesChange}
-                    value={minutes.toString().replace(/[^0-9]/g, '')}
+                    value={minutes.toString()}
                 />
                 <Text style={{ fontSize: 20, fontWeight: 'bold', textAlignVertical: 'center', left: 5 }}>{!language ? "Seconds:" : "秒："}</Text>
                 <TextInput
                     style={styles.input}
                     keyboardType='numeric'
                     onChangeText={handleSecondsChange}
-                    value={seconds.toString().replace(/[^0-9]/g, '')}
+                    value={seconds.toString()}
                 />
             </View>
             <View style={{ alignSelf: 'center' }}>

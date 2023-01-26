@@ -1,8 +1,3 @@
-// Name: Ken Li Jia Jie
-
-// Admission Number: P2227704
-
-// Class: DIT/FT/1B/02
 import * as React from 'react';
 
 import { StyleSheet, Text, View, SectionList, TouchableOpacity } from 'react-native';
@@ -83,7 +78,7 @@ const navigation = useNavigation();
 
       </View>
       <View style={{ flex: 1 }}>
-        {(
+        {selectedEvents.length > 0 && (
           <SectionList
             sections={[{ data: selectedEvents }]}
             keyExtractor={(item) => item.title}
