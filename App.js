@@ -18,6 +18,8 @@ import NoteScreen from "./screens/NoteScreen"
 import CalendarScreens from "./screens/CalendarScreen"
 import TimerScreens from "./screens/Timer"
 
+import 'react-native-url-polyfill/auto'
+import {supabase} from './supabase'
 
 
 

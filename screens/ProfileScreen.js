@@ -1,115 +1,43 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
+import {Alert, Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 
-const EmailInput = () => {
-    const [email, onChangeEmail] = React.useState();
+import DeleteCountDown from '../components/ProfileScreen/DeleteCountdown'
+import EmailInput from '../components/ProfileScreen/EmailInput'
+import PasswordInput from '../components/ProfileScreen/PasswordInput'
+import Auth from '../components/ProfileScreen/Auth'
 
-    return (
-        <SafeAreaView>
-            <TextInput
-                defaultValue="example@gmail.com"
-                style={styles.input}
-                onChange={() => onChangeEmail(email)}
-                selectTextOnFocus={true}
-                value={email}
-            />
-        </SafeAreaView>
-    )
-}
-
-const PasswordInput = () => {
-    const [Password, onChangePassword] = React.useState();
-
-    return (
-        <SafeAreaView>
-            <TextInput
-                secureTextEntry={true}
-                defaultValue=""
-                style={styles.input}
-                selectTextOnFocus={true}
-                onChange={() => onChangePassword(Password)}
-                value={Password}
-            />
-        </SafeAreaView>
-    )
-}
-
-function DeleteCountDown(props) {
-    const reset = props.reset
-    const language = props.language
-    var deleteEnabled = false
-    var text = "🔒"
-    const [second, setSecond] = React.useState(10)
-    
-    var timer = setTimeout(() => {
-        setSecond(second - 1)
-    }, 1000)
-
-    if (second == 0) {
-        text = !language ? "Confirm Deletion" : "确定删除"
-        deleteEnabled = true
-        clearTimeout(timer)
-
-    }
-    return (
-        <>
-            <Text style={{ fontWeight: "bold", marginTop: 60 }}>{!language ? ("Delete button will unlock in " + second + " seconds") : ("删除按钮将在 " + second + " 秒后解锁")}</Text>
-            <Pressable onPress={() => { reset() }} disabled={!deleteEnabled} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
-                <Text style={{ fontWeight: "bold", color: "black" }}>{text}</Text>
-            </Pressable>
-        </>
-    )
-}
-
+import 'react-native-url-polyfill/auto'
+import {supabase} from '../supabase'
 
 export default function ProfileScreen(props) {
     const [LoginModal, setLoginModal] = React.useState(false);
     const [ResetModal, setResetModal] = React.useState(false);
     const language = props.language
     const rerender = props.rerender
-
+    const [email,onChangeEmail] = React.useState()
+    const [password,onChangePassword] = React.useState()
 
     return (
         <>
             <Modal
                 animationType="slide"
-                transparent={true}
+                transparent={false}
                 visible={LoginModal}
                 onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
                     setLoginModal(!LoginModal);
                 }}
             >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Pressable
-                            style={{ alignSelf: "flex-start" }}
-                            onPress={() => setLoginModal(!LoginModal)}>
-                            <AntDesign name="closecircle" size={24} color="black" />
-                        </Pressable>
-                        <Text style={{ alignSelf: "flex-start", padding: 10, fontWeight: "bold" }}>Email</Text>
-                        <EmailInput />
-                        <Text style={{ alignSelf: "flex-start", padding: 10, fontWeight: "bold" }}>Password</Text>
-                        <PasswordInput />
-                        <Pressable style={[styles.button, { backgroundColor: "#68AEFF", width: 180, marginTop: 50 }]}>
-                            <Text style={{ fontWeight: "bold", color: "black" }}>Login</Text>
-                        </Pressable>
-                        <Pressable style={[styles.button, { backgroundColor: "#D4F1FB", width: 180, marginTop: 50 }]}>
-                            <Text style={{ fontWeight: "bold", color: "#0094FF", textDecorationLine: 'underline' }}>Signup</Text>
-                        </Pressable>
-                    </View>
-                </View>
+                <Auth close = {()=>{setLoginModal(!LoginModal)}}/>
             </Modal>
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={ResetModal}
                 onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
-                    setLoginModal(!ResetModal);
+                    setResetModal(!ResetModal);
                 }}
             >
                 <View style={styles.centeredView}>
