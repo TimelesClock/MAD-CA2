@@ -15,14 +15,61 @@ import { supabase } from '../supabase'
 function Profile(props) {
     const language = props.language
     const open = props.open
-    return (
-        <>
-            <Text style={{ marginLeft: 8, paddingBottom: 20 }}>{!language ? "You are not logged in!" : "你没有登录!"}</Text>
-            <Pressable style={styles.button} onPress={() => open()}>
-                <Text style={{ fontWeight: "bold" }} >{!language ? "Login" : "登录"}</Text>
-            </Pressable>
-        </>
-    )
+    const [login, setLogin] = React.useState(false)
+    const [profileName, setProfileName] = React.useState()
+
+    AsyncStorage.getItem("access_token")
+        .then(async (value) => {
+            if (value !== null) {
+                setLogin(true)
+                await supabase.from("profiles").select("full_name")
+                    .then(({ data }) => {
+
+                        if (data[0].full_name) {
+                            setProfileName(data[0].full_name)
+                        } else {
+                            AsyncStorage.getItem("email")
+                                .then((value2) => {
+                                    end = value2.replace(/@.*$/, "")
+                                    end = end.length < 7
+                                    ? `${value2}`
+                                    : `${value2.substring(0, 7)}...`
+                                    setProfileName(end)
+                                })
+                        }
+
+                    })
+                    .catch((error) => {
+                        Alert.alert(error)
+                    })
+            } else {
+                setLogin(false)
+            }
+        })
+        .catch((error) => {
+            Alert.alert(error)
+        })
+
+    if (!login) {
+        return (
+            <>
+                <Text style={{ marginLeft: 8, paddingBottom: 20 }}>{!language ? "You are not logged in!" : "你没有登录!"}</Text>
+                <Pressable style={styles.button} onPress={() => open()}>
+                    <Text style={{ fontWeight: "bold" }} >{!language ? "Login" : "登录"}</Text>
+                </Pressable>
+            </>
+        )
+    } else {
+        return (
+            <>
+                <Text numberOfLines={2} ellipsizeMode="tail" style={{}}>Profile Name: {profileName}</Text>
+                <Pressable style={styles.button} onPress={async () => { await supabase.auth.signOut(); AsyncStorage.removeItem("access_token"); setLogin(!login) }}>
+                    <Text style={{ fontWeight: "bold" }} >{!language ? "Logout" : "登录"}</Text>
+                </Pressable>
+            </>
+        )
+    }
+
 }
 
 export default function ProfileScreen(props) {
@@ -77,7 +124,7 @@ export default function ProfileScreen(props) {
             <View style={{ flex: 1, flexDirection: "row", borderBottomWidth: 2 }}>
                 <Ionicons style={{ flex: 1 }} name="person-circle-outline" size={75} color="black" />
                 <View style={{ flex: 2, paddingTop: Constants.statusBarHeight }}>
-                    <Profile language = {language} open = {()=>{setLoginModal(true)}}/>
+                    <Profile language={language} open={() => { setLoginModal(true) }} />
                 </View>
 
             </View>

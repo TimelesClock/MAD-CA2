@@ -22,7 +22,10 @@ export default function Auth(props) {
                     Alert.alert(error.message)
                 }else{
                     AsyncStorage.setItem("access_token",data.session.access_token)
+                    AsyncStorage.setItem("email",data.user.email)
+                    AsyncStorage.setItem("uuid",data.user.id)
                     close()
+
                 }
 
                 setLoading(false)
@@ -35,9 +38,15 @@ export default function Auth(props) {
             email: email,
             password: password,
         })
-            .then(({ error }) => {
-                if (error) Alert.alert(error.message)
+            .then(({ data,error }) => {
+                if (error) {
+                    Alert.alert(error.message)
+                }else{
+                    AsyncStorage.setItem("access_token",data.session.access_token)
+                    close()
+                }
                 setLoading(false)
+
             })
     }
 
