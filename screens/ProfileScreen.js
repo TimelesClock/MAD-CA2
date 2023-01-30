@@ -2,12 +2,12 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
-import { Ionicons, AntDesign } from '@expo/vector-icons';
+import { Ionicons, AntDesign,EvilIcons  } from '@expo/vector-icons';
 
 import DeleteCountDown from '../components/ProfileScreen/DeleteCountdown'
-import EmailInput from '../components/ProfileScreen/EmailInput'
-import PasswordInput from '../components/ProfileScreen/PasswordInput'
+import ChangeName from '../components/ProfileScreen/ChangeName'
 import Auth from '../components/ProfileScreen/Auth'
+
 
 import 'react-native-url-polyfill/auto'
 import { supabase } from '../supabase'
@@ -15,40 +15,22 @@ import { supabase } from '../supabase'
 function Profile(props) {
     const language = props.language
     const open = props.open
-    const [login, setLogin] = React.useState(false)
+    const openName = props.openName
+    const {login, setLogin} = props
     const [profileName, setProfileName] = React.useState()
 
-    AsyncStorage.getItem("access_token")
-        .then(async (value) => {
-            if (value !== null) {
-                setLogin(true)
-                await supabase.from("profiles").select("full_name")
-                    .then(({ data }) => {
-
-                        if (data[0].full_name) {
-                            setProfileName(data[0].full_name)
-                        } else {
-                            AsyncStorage.getItem("email")
-                                .then((value2) => {
-                                    end = value2.replace(/@.*$/, "")
-                                    end = end.length < 7
-                                    ? `${value2}`
-                                    : `${value2.substring(0, 7)}...`
-                                    setProfileName(end)
-                                })
-                        }
-
-                    })
-                    .catch((error) => {
-                        Alert.alert(error)
-                    })
-            } else {
-                setLogin(false)
+    
+    if (login){
+        AsyncStorage.getItem("profileName")
+        .then((name) => {
+            if (name) {
+                setProfileName(name)
             }
         })
-        .catch((error) => {
-            Alert.alert(error)
-        })
+    }
+
+    
+
 
     if (!login) {
         return (
@@ -62,9 +44,19 @@ function Profile(props) {
     } else {
         return (
             <>
-                <Text numberOfLines={2} ellipsizeMode="tail" style={{}}>Profile Name: {profileName}</Text>
-                <Pressable style={styles.button} onPress={async () => { await supabase.auth.signOut(); AsyncStorage.removeItem("access_token"); setLogin(!login) }}>
-                    <Text style={{ fontWeight: "bold" }} >{!language ? "Logout" : "登录"}</Text>
+                <Pressable style = {{flexDirection:"row"}} onPress = {()=>openName()}>
+                    <Text numberOfLines={2} ellipsizeMode="tail" style={{}}>Profile Name: {profileName}</Text>
+                    <EvilIcons name="pencil" size={24} color="black" />
+                </Pressable>
+
+
+                <Pressable style={[styles.button,{marginTop:25}]} onPress={async () => {
+                    await supabase.auth.signOut();
+                    let keys = ["access_token", "profileName", "uuid", "email"]
+                    await AsyncStorage.multiRemove(keys)
+                    setLogin(false)
+                }}>
+                    <Text style={{ fontWeight: "bold"}} >{!language ? "Logout" : "登录"}</Text>
                 </Pressable>
             </>
         )
@@ -73,12 +65,27 @@ function Profile(props) {
 }
 
 export default function ProfileScreen(props) {
+    const [login,setLogin] = React.useState(false)
     const [LoginModal, setLoginModal] = React.useState(false);
     const [ResetModal, setResetModal] = React.useState(false);
+    const [NameModal,setNameModal] = React.useState(false)
     const language = props.language
     const rerender = props.rerender
-    const [email, onChangeEmail] = React.useState()
-    const [password, onChangePassword] = React.useState()
+    const [Name, onChangeName] = React.useState()
+
+    AsyncStorage.getItem("access_token")
+        .then(async (value) => {
+            if (value !== null) {
+                setLogin(true)
+
+            } else {
+                setLogin(false)
+            }
+        })
+        .catch((error) => {
+            Alert.alert(error)
+        })
+
 
     return (
         <>
@@ -91,6 +98,16 @@ export default function ProfileScreen(props) {
                 }}
             >
                 <Auth close={() => { setLoginModal(!LoginModal) }} />
+            </Modal>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={NameModal}
+                onRequestClose={() => {
+                    setNameModal(!NameModal);
+                }}
+            >
+                <ChangeName close = {()=>setNameModal(!NameModal)} language = {language} login = {login}/>
             </Modal>
             <Modal
                 animationType="slide"
@@ -124,7 +141,7 @@ export default function ProfileScreen(props) {
             <View style={{ flex: 1, flexDirection: "row", borderBottomWidth: 2 }}>
                 <Ionicons style={{ flex: 1 }} name="person-circle-outline" size={75} color="black" />
                 <View style={{ flex: 2, paddingTop: Constants.statusBarHeight }}>
-                    <Profile language={language} open={() => { setLoginModal(true) }} />
+                    <Profile language={language} open={() => { setLoginModal(true) }} openName ={()=>{setNameModal(true)}} login = {login} setLogin = {setLogin}/>
                 </View>
 
             </View>

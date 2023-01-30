@@ -17,13 +17,38 @@ export default function Auth(props) {
             email: email,
             password: password,
         })
-            .then(({ data, error }) => {
+            .then(async ({ data, error }) => {
                 if (error) {
                     Alert.alert(error.message)
-                }else{
-                    AsyncStorage.setItem("access_token",data.session.access_token)
-                    AsyncStorage.setItem("email",data.user.email)
-                    AsyncStorage.setItem("uuid",data.user.id)
+                } else {
+                    AsyncStorage.setItem("access_token", data.session.access_token)
+                    AsyncStorage.setItem("email", data.user.email)
+                    AsyncStorage.setItem("uuid", data.user.id)
+
+                    await supabase.from("profiles").select("full_name")
+                        .then(async ({ data }) => {
+
+                            if (data[0].full_name) {
+                                AsyncStorage.setItem("profileName", data[0].full_name)
+                            } else {
+                                await AsyncStorage.getItem("email")
+                                    .then((value2) => {
+                                        var end = value2.replace(/@.*$/, "")
+                                        end = end.length < 7
+                                            ? `${value2}`
+                                            : `${value2.substring(0, 7)}...`
+                                        AsyncStorage.setItem("profileName", end)
+                                    })
+                                    .catch((error) => {
+                                        Alert.alert(error)
+                                    })
+                            }
+
+                        })
+                        .catch((error) => {
+                            Alert.alert(error)
+                        })
+
                     close()
 
                 }
@@ -38,11 +63,11 @@ export default function Auth(props) {
             email: email,
             password: password,
         })
-            .then(({ data,error }) => {
+            .then(({ data, error }) => {
                 if (error) {
                     Alert.alert(error.message)
-                }else{
-                    AsyncStorage.setItem("access_token",data.session.access_token)
+                } else {
+                    AsyncStorage.setItem("access_token", data.session.access_token)
                     close()
                 }
                 setLoading(false)
@@ -79,7 +104,7 @@ export default function Auth(props) {
                     autoCapitalize={'none'}
                 />
             </View>
-            <Text style = {[loading ? {opacity:1}:{opacity:0}]}>Loading...</Text>
+            <Text style={[loading ? { opacity: 1 } : { opacity: 0 }]}>Loading...</Text>
             <View style={[styles.verticallySpaced, styles.mt20]}>
                 <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
             </View>
