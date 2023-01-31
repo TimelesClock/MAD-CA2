@@ -68,7 +68,7 @@ export default function Auth(props) {
                     Alert.alert(error.message)
                 } else {
                     AsyncStorage.setItem("access_token", data.session.access_token)
-                    close()
+                    Alert.alert("Signup Successful!")
                 }
                 setLoading(false)
 

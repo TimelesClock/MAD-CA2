@@ -148,13 +148,13 @@ export default function ProfileScreen(props) {
             <View style={{ flex: 5 }}>
                 <Text style={{ fontWeight: "bold", fontSize: 30, paddingBottom: 40, paddingLeft: 20 }}>{!language ? "Settings" : "设置"}</Text>
                 <View style={{}}>
-                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Theme" : "颜色主题"}</Text>
+                    <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Cloud Storage" : "颜色主题"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
-                        <Pressable style={[styles.button, { backgroundColor: "#000000", width: 180 }]}>
-                            <Text style={{ fontWeight: "bold", color: "white" }}>{!language ? "Dark" : "暗"}</Text>
+                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login}>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Upload data to cloud" : "暗"}</Text>
                         </Pressable>
-                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
-                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Light" : "亮"}</Text>
+                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login}>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Load data from cloud" : "亮"}</Text>
                         </Pressable>
                     </View>
                 </View>
