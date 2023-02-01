@@ -18,7 +18,7 @@ function Profile(props) {
     const openName = props.openName
     const {login, setLogin} = props
     const [profileName, setProfileName] = React.useState()
-
+    const rerender = props.rerender
     
     if (login){
         AsyncStorage.getItem("profileName")
@@ -55,6 +55,7 @@ function Profile(props) {
                     let keys = ["access_token", "profileName", "uuid", "email"]
                     await AsyncStorage.multiRemove(keys)
                     setLogin(false)
+                    rerender()
                 }}>
                     <Text style={{ fontWeight: "bold"}} >{!language ? "Logout" : "登录"}</Text>
                 </Pressable>
@@ -141,7 +142,7 @@ export default function ProfileScreen(props) {
             <View style={{ flex: 1, flexDirection: "row", borderBottomWidth: 2 }}>
                 <Ionicons style={{ flex: 1 }} name="person-circle-outline" size={75} color="black" />
                 <View style={{ flex: 2, paddingTop: Constants.statusBarHeight }}>
-                    <Profile language={language} open={() => { setLoginModal(true) }} openName ={()=>{setNameModal(true)}} login = {login} setLogin = {setLogin}/>
+                    <Profile language={language} open={() => { setLoginModal(true) }} openName ={()=>{setNameModal(true)}} login = {login} setLogin = {setLogin} rerender = {()=>{rerender()}}/>
                 </View>
 
             </View>
