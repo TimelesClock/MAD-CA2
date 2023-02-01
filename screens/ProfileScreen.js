@@ -153,7 +153,17 @@ export default function ProfileScreen(props) {
                         <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login}>
                             <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Upload data to cloud" : "暗"}</Text>
                         </Pressable>
-                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login}>
+                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login} onPress={async ()=>{
+                            setLogin(!login)
+                            await supabase.from("notes").select("data")
+                                .then((data)=>{
+                                    AsyncStorage.setItem("notes",JSON.stringify(data.data[0].data))
+                                })
+                                .catch((error)=>{
+                                    Alert.alert(error)
+                                })
+                            setLogin(!login)
+                        }}>
                             <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Load data from cloud" : "亮"}</Text>
                         </Pressable>
                     </View>

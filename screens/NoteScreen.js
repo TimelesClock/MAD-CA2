@@ -1,10 +1,11 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
+import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView, Keyboard } from 'react-native';
 import Constants from 'expo-constants';
 import { MaterialCommunityIcons, AntDesign, Feather } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import uuid from 'uuid'
 
 //Why does this feel like coding a DEUI prototype
 const FileInput = () => {
@@ -35,16 +36,16 @@ function Child(props) {
     } else {
         const data = route.params.files
         file2 = data.map((i, iteration) =>
-            <>
-                <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} key = {"DeleteConfirm"} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
-                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} del = {()=>{setShow2(!Show2)}} show={Show} key = {iteration+i.name} />
-                <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name + iteration}>
+            <View key={i.name}>
+                <DeleteConfirm show={Show2} unshow={() => { setShow2(!Show2) }} unshow2={() => { setShow2(!Show2); setShow(!Show) }} />
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} del={() => { setShow2(!Show2) }} show={Show} />
+                <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }}>
                     <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
                         <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
                     </View>
                 </Pressable>
-            </>
+            </View>
         )
     }
 
@@ -84,7 +85,7 @@ function Child(props) {
     )
 }
 
-function DeleteConfirm(props){
+function DeleteConfirm(props) {
     const unshow2 = props.unshow2
     const unshow = props.unshow
     const show = props.show
@@ -102,13 +103,13 @@ function DeleteConfirm(props){
         >
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                <Pressable
+                    <Pressable
                         style={{ alignSelf: "flex-start" }}
                         onPress={() => unshow()}>
                         <AntDesign name="closecircle" size={24} color="black" />
                     </Pressable>
-                    <Pressable onPress = {()=>{unshow2()}} style = {[styles.button,{marginTop:50}]}>
-                        <Text style = {{fontWeight:'bold'}}>
+                    <Pressable onPress={() => { unshow2() }} style={[styles.button, { marginTop: 50 }]}>
+                        <Text style={{ fontWeight: 'bold' }}>
                             Confirm Deletion
                         </Text>
                     </Pressable>
@@ -127,7 +128,7 @@ function MoreModals(props) {
     const show = props.show
     //What is sleep
     return (
-        
+
         <Modal
             animationType="slide"
             transparent={true}
@@ -139,7 +140,7 @@ function MoreModals(props) {
 
             }}
         >
-            
+
             <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                     <Pressable
@@ -149,10 +150,10 @@ function MoreModals(props) {
                     </Pressable>
                     <Text style={{ fontWeight: 'bold' }}>{title}</Text>
                     <Text style={{ padding: 50 }}>{data}</Text>
-                    <Pressable onPress = {()=>{del()}} style={{ alignSelf: "flex-end" }}>
-                        <Feather  name="trash-2" size={24} color="black" />
+                    <Pressable onPress={() => { del() }} style={{ alignSelf: "flex-end" }}>
+                        <Feather name="trash-2" size={24} color="black" />
                     </Pressable>
-                    
+
                 </View>
             </View>
         </Modal>
@@ -167,35 +168,54 @@ function Folder(props) {
     const [Show2, setShow2] = React.useState(false)
     const navigation = useNavigation();
     const route = useRoute()
+
+    const [fileName, onChangeFileName] = React.useState();
+
+    const [folderData, setFolderData] = React.useState([])
+    const [fileData, setFileData] = React.useState([])
+
+    React.useEffect(() => {
+        AsyncStorage.getItem("notes")
+            .then(response => {
+                if (response) {
+                    let obj = JSON.parse(response)
+                    setFolderData(obj.folders)
+                    setFileData(obj.files)
+                }
+            })
+    }, [])
+
+
+
     var folders
     var file
-    if (!props.folders) {
+    if (!folderData) {
         folders = <></>
     } else {
-        folders = props.folders.map((obj, iteration) =>
+        folders = folderData.map((obj, iteration) =>
             <Pressable onPress={() => {
                 navigation.push("Child", { "files": obj.files })
             }} style={{ marginHorizontal: 4 }} key={iteration}>
                 <Text style={{ marginLeft: 5 }}>{obj.name}</Text>
-                <AntDesign name="folder1" size={180} color="black" />
+                <AntDesign name="folder1" size={170} color="black" />
 
             </Pressable>
         )
     }
-    if (!props.folders) {
+    if (!folderData) {
         file = <></>
     } else {
-        file = props.files.map((i,iteration) =>
-            <>
-                <DeleteConfirm show = {Show2} unshow = {()=>{setShow2(!Show2)}} key = {"DeleteConfirm"} unshow2 = {()=>{setShow2(!Show2);setShow(!Show)}}/>
-                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} del = {()=>{setShow2(!Show2)}} key = {"moreModals"}/>
-                <Pressable onPress={() => { setShow(!Show) }} style={{ marginHorizontal: 4 }} key={i.name}>
-                    <View style={{ borderWidth: 1, width: 180, height: 180, alignContent: 'center' }}>
+        file = fileData.map((i, iteration) =>
+            <View key={i.name+iteration}>
+                <DeleteConfirm show={Show2} unshow={() => { setShow2(!Show2) }} unshow2={() => { setShow2(!Show2); setShow(!Show) }} />
+                <MoreModals title={i.name} data={i.data} unshow={() => setShow(!Show)} show={Show} del={() => { setShow2(!Show2) }} />
+                <Pressable onPress={() => { setShow(!Show) ;console.log(i.data,iteration)}} style={{ marginHorizontal: 4,marginVertical:5 }}>
+                    <View style={{ borderWidth: 1, width: 170, height: 170, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
                         <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
                     </View>
                 </Pressable>
-            </>
+            </View>
         )
     }
 
@@ -220,8 +240,22 @@ function Folder(props) {
                         </Pressable>
                         <Text style={{ fontWeight: 'bold' }}>New Notes</Text>
                         <Text style={{ padding: 50, fontWeight: 'bold' }}>New Name:</Text>
-                        <FileInput />
-                        <Pressable onPress={() => { setFilesModal(!filesModal) }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
+                        <SafeAreaView>
+                            <TextInput
+                                defaultValue=""
+                                style={styles.input}
+                                onChangeText={(text) => {onChangeFileName(text)}}
+                                selectTextOnFocus={true}
+                                value={fileName}
+                            />
+                        </SafeAreaView>
+                        <Pressable onPress={() => { 
+                            let temp = fileData
+                            temp.push({data:"",name:fileName})
+                            setFileData(temp)
+                            console.log(fileData)
+                             setFilesModal(!filesModal)
+                              }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
                             <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
                         </Pressable>
                     </View>
