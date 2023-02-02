@@ -1,6 +1,6 @@
 import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView, Keyboard, ScrollView, LogBox } from 'react-native';
+import { Text, View, Button, Pressable, Modal, TextInput, SafeAreaView, Keyboard, ScrollView, LogBox, } from 'react-native';
 import Constants from 'expo-constants';
 import { MaterialCommunityIcons, AntDesign, Feather } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -37,7 +37,7 @@ function TxtContent(props) {
     const fileData = route.params.fileData
     const setFileData = route.params.setFileData
     const folderData = route.params.folderData
-
+    
     const setFolderData = route.params.setFolderData
 
     const folderIteration = route.params.folderIteration
@@ -61,7 +61,7 @@ function TxtContent(props) {
                         </Pressable>
                         <Pressable onPress={async () => {
                             setShow(false);
-                            if (folderIteration !== null) {
+                            if (folderIteration !== null && folderIteration != undefined) {
                                 let tempFolder = folderData
                                 tempFolder[folderIteration].files.splice(iteration,1)
                                 setFolderData(tempFolder)
@@ -69,6 +69,7 @@ function TxtContent(props) {
                                 setFileData(fileData.splice(iteration, 1));
                             }
                             await AsyncStorage.setItem("notes", JSON.stringify({ files: fileData, folders: folderData }));
+
                             getData()
                             navigation.pop()
 
@@ -102,21 +103,25 @@ function Child(props) {
     // const folderData = route.params.folderData
 
     const [fileName, onChangeFileName] = React.useState();
+    const getDataRe = route.params.getDataRe
 
-    const [fileData, setFileData] = React.useState(route.params.files)
+    const parentFile = route.params.fileData
+    
     const [folderData,setFolderData]= React.useState(route.params.folderData)
+    const [fileData, setFileData] = React.useState(folderData[folderIteration].files)
 
     const [filesModal, setFilesModal] = React.useState(false)
     const navigation = useNavigation();
 
     async function getData() {
+
         await AsyncStorage.getItem("notes")
             .then(response => {
                 if (response) {
 
                     let obj = JSON.parse(response)
                     setFolderData(obj.folders)
-                    setFileData(obj.files)
+                    setFileData(folderData[folderIteration].files)
                 }
             })
     }
@@ -127,8 +132,8 @@ function Child(props) {
         const data = fileData
         file2 = data.map((i, iteration) =>
             <View key={i.name + iteration.toString()}>
-                <Pressable onPress={() => {navigation.push("TxtContent", { "name": i.name, "data": i.data, "folderIteration": folderIteration, "iteration": iteration, "getData": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData,"setFolderData":setFolderData }) }} style={{ marginHorizontal: 4, marginVertical: 5 }}>
-                    <View style={{ borderWidth: 1, width: 170, height: 170, alignContent: 'center' }}>
+                <Pressable onPress={() => {navigation.push("TxtContent", { "name": i.name, "data": i.data, "folderIteration": folderIteration, "iteration": iteration, "getData": () => { getData();getDataRe() }, "fileData": parentFile, "setFileData": setFileData, "folderData": folderData,"setFolderData":setFolderData }) }} style={{ marginHorizontal: 4, marginVertical: 5 }}>
+                    <View style={{ borderWidth: 1, width: 200, height: 200, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
                         <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
                     </View>
@@ -165,10 +170,13 @@ function Child(props) {
                                 value={fileName}
                             />
                         </SafeAreaView>
-                        <Pressable onPress={() => {
-                            let temp = fileData
-                            temp.push({ data: "", name: fileName })
-                            setFileData(temp)
+                        <Pressable onPress={async () => {
+                            let temp = folderData
+                            temp[folderIteration].files.push({ data: "", name: fileName })
+                            setFolderData(temp)
+                            await AsyncStorage.setItem("notes", JSON.stringify({ files: parentFile, folders: folderData }));
+                            getData()
+                            getDataRe()
                             setFilesModal(!filesModal)
                         }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
                             <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
@@ -176,9 +184,9 @@ function Child(props) {
                     </View>
                 </View>
             </Modal>
-            <View style={{ margin: 15, flexDirection: "row", flexWrap: "wrap" }}>
+            <ScrollView style={{ margin: 15, flexDirection: "row", flexWrap: "wrap" }}>
                 {file2}
-            </View>
+            </ScrollView>
             <Pressable onPress={() => { setFilesModal(!filesModal) }} style={{ alignSelf: 'flex-end', position: 'absolute', top: 530, right: 10 }}>
                 <MaterialCommunityIcons name="note-plus-outline" size={60} color="black" />
             </Pressable>
@@ -223,10 +231,10 @@ function Folder(props) {
     } else {
         folders = folderData.map((obj, iteration) =>
             <Pressable onPress={() => {
-                navigation.push("Child", { "files": obj.files, "folderIteration": iteration, "getData": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData, "setFolderData": setFolderData })
+                navigation.push("Child", { "files": obj.files, "folderIteration": iteration, "getDataRe": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData, "setFolderData": setFolderData })
             }} style={{ marginHorizontal: 4 }} key={iteration}>
                 <Text style={{ marginLeft: 5 }}>{obj.name}</Text>
-                <AntDesign name="folder1" size={170} color="black" />
+                <AntDesign name="folder1" size={200} color="black" />
 
             </Pressable>
         )
@@ -237,7 +245,7 @@ function Folder(props) {
         file = fileData.map((i, iteration) =>
             <View key={i.name + iteration.toString()}>
                 <Pressable onPress={() => { navigation.push("TxtContent", { "name": i.name, "data": i.data, "iteration": iteration, "getData": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData }) }} style={{ marginHorizontal: 4, marginVertical: 5 }}>
-                    <View style={{ borderWidth: 1, width: 170, height: 170, alignContent: 'center' }}>
+                    <View style={{ borderWidth: 1, width: 200, height: 200, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
                         <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
                     </View>
@@ -276,10 +284,12 @@ function Folder(props) {
                                 value={fileName}
                             />
                         </SafeAreaView>
-                        <Pressable onPress={() => {
+                        <Pressable onPress={async() => {
                             let temp = fileData
                             temp.push({ data: "", name: fileName })
                             setFileData(temp)
+                            await AsyncStorage.setItem("notes", JSON.stringify({ files: fileData, folders: folderData }));
+                            getData()
                             setFilesModal(!filesModal)
                         }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
                             <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
@@ -313,10 +323,10 @@ function Folder(props) {
                 </View>
             </Modal>
 
-            <View style={{ margin: 15, flexDirection: "row", flexWrap: "wrap" }}>
+            <ScrollView style={{ margin: 15, flexDirection: "row", flexWrap: "wrap" } } >
                 {folders}
                 {file}
-            </View>
+            </ScrollView>
             <Pressable onPress={() => { setFolderModal(!folderModal) }} disabled={enabled} style={{ alignSelf: 'flex-end', position: 'absolute', top: 460, right: 10, opacity: enabled ? 0 : 1 }}>
                 <Feather name="folder-plus" size={60} color="black" />
             </Pressable>
