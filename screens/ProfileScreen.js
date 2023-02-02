@@ -151,7 +151,26 @@ export default function ProfileScreen(props) {
                 <View style={{}}>
                     <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Cloud Storage" : "颜色主题"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
-                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login}>
+                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login} onPress={()=>{
+                            setLogin(!login)
+                             AsyncStorage.multiGet(["notes","uuid"])
+                                .then(async (data)=>{
+                                    if (data){
+                                         supabase.from("notes")
+                                            .update({data:JSON.parse(data[0][1])})
+                                            .eq('id',data[1][1])
+                                    }else{
+                                         supabase.from("notes")
+                                            .update({data:{files:[],folders:[]}})
+                                            .eq('id',data[1][1])
+                                    }
+                                    // console.log(JSON.parsedata[0][1])
+                                })
+                                .catch((error)=>{
+                                    Alert.alert(error)
+                                })
+                            setLogin(!login)
+                        }}>
                             <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Upload data to cloud" : "暗"}</Text>
                         </Pressable>
                         <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login} onPress={async ()=>{

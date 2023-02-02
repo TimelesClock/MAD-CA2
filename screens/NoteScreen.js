@@ -5,7 +5,6 @@ import Constants from 'expo-constants';
 import { MaterialCommunityIcons, AntDesign, Feather } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import uuid from 'uuid'
 
 LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
