@@ -3,7 +3,7 @@ import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker, Swit
 import Constants from 'expo-constants';
 import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import RNPickerSelect from 'react-native-picker-select';
 
 
 export default function TodoList() {
@@ -18,10 +18,10 @@ export default function TodoList() {
     })
 
   const [tasks, setTasks] = React.useState([
-    { title: 'MAD Assignment 2', dueDate: '2023-01-13', completed: false },
-    { title: 'BED Assignment 1', dueDate: '2023-01-03', completed: true },
-    { title: 'Home-Based Learning Packege', dueDate: '2022-01-17', completed: false },
-    { title: 'Java Assignment 1', dueDate: '2022-05-04', completed: true },
+    { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+    { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+    { title: 'Home-Based Learning Packege', dueDate: new Date('2022-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+    { title: 'Java Assignment 1', dueDate: new Date('2022-05-04'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
   ]);
 
 
@@ -33,6 +33,32 @@ export default function TodoList() {
   const [selectedTask, setSelectedTask] = React.useState(null);
   const [isEnabled, setIsEnabled] = React.useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const [date, setDate] = React.useState(new Date());
+  const [hiddenSections, setHiddenSections] = React.useState({});
+  const [datePickerVisible, setDatePickerVisible] = React.useState(false);
+  const [selectedYear, setSelectedYear] = React.useState(null);
+  const [selectedMonth, setSelectedMonth] = React.useState(null);
+  const [selectedDay, setSelectedDay] = React.useState(null);
+
+
+  const years = Array.from({ length: 2032 - 2012 + 1 }, (_, i) => 2012 + i);
+
+  const months = [
+    { label: 'January', value: 1 },
+    { label: 'February', value: 2 },
+    { label: 'March', value: 3 },
+    { label: 'April', value: 4 },
+    { label: 'May', value: 5 },
+    { label: 'June', value: 6 },
+    { label: 'July', value: 7 },
+    { label: 'August', value: 8 },
+    { label: 'September', value: 9 },
+    { label: 'October', value: 10 },
+    { label: 'November', value: 11 },
+    { label: 'December', value: 12 },
+  ];
+
+
 
   const handleTaskClick = (task) => {
     setSelectedTask(task);
@@ -43,7 +69,7 @@ export default function TodoList() {
   };
 
 
-  const [hiddenSections, setHiddenSections] = React.useState({});
+
 
   const handleSectionPress = (title) => {
     setHiddenSections({
@@ -51,7 +77,6 @@ export default function TodoList() {
       [title]: !hiddenSections[title]
     });
   };
-
 
 
   const sections = [
@@ -66,18 +91,36 @@ export default function TodoList() {
   ];
 
   const handleSubmit = () => {
-    setModalVisible(false);
-    setTaskTitle('');
+    const newTask = { title: taskTitle, dueDate: new Date(taskDueDate), completed: false, selected: false, description: "", showInCalendar: isEnabled, showInTodo: true };
+    console.log(newTask);
+    setTasks([...tasks, newTask]);
     setTaskDescription('');
-    setTaskDueDate();
+    setTaskTitle('');
+    setIsEnabled(false)
+    setModalVisible(false);
+
+  };
+
+  const handleDatePick = () => {
+    setDatePickerVisible(true)
   }
+
+  const datePickerSubmit = () => {
+    setDatePickerVisible(false)
+  }
+
+  const daysInMonth = (month, year) => {
+    return new Date(year, month, 0).getDate();
+  };
+
+  const days = Array.from({ length: selectedMonth ? daysInMonth(selectedMonth, selectedYear) : 31 }, (_, i) => i + 1);
 
   return (
     <>
 
       <View style={{ ...styles.container2 }}>
-        <View style={{flexDirection:'row', borderBottomWidth:1, marginBottom: 10, paddingBottom:10,borderColor:'grey'}}>
-          <AntDesign style={{top:10 }} name="search1" size={30} color="black" />
+        <View style={{ flexDirection: 'row', borderBottomWidth: 1, marginBottom: 10, paddingBottom: 10, borderColor: 'grey' }}>
+          <AntDesign style={{ top: 10 }} name="search1" size={30} color="black" />
           <TextInput
             style={{ backgroundColor: "#D7D7D7", width: '95%', height: 50, paddingLeft: 30, borderRadius: 30 }}
             placeholder={!language ? "Search" : "搜索"}
@@ -93,7 +136,7 @@ export default function TodoList() {
               return (
                 <View>
                   <Text style={styles.item} onPress={() => handleTaskClick(item)}>
-                    {item.title}  {item.dueDate}
+                    {item.title}  {item.dueDate.toLocaleDateString()}
                   </Text>
                 </View>
               );
@@ -129,12 +172,10 @@ export default function TodoList() {
                 onChangeText={text => setTaskDescription(text)}
                 value={taskDescription}
               />
-              <TextInput
-                style={styles.input}
-                placeholder={!language ? "Due Date" : "截止日期"}
-                onChangeText={text => setTaskDueDate(text)}
-                value={taskDueDate}
-              />
+              <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, }}>
+                <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Due date" : "截止日期"}</Text>
+                <AntDesign name="right" size={24} color="black" onPress={handleDatePick} />
+              </View>
               <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, borderTopColor: 'grey', borderTopWidth: 1, }}>
                 <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Reminder" : "提醒"}</Text>
                 <View style={{ maxWidth: "40%", flexDirection: "row", alignItems: 'center' }}>
@@ -154,7 +195,7 @@ export default function TodoList() {
                 />
               </View>
               <View style={{ paddingTop: 10 }}>
-                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={() => setModalVisible(false)}>Submit</Text>
+                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={handleSubmit}>Submit</Text>
 
               </View>
             </View>
@@ -165,12 +206,50 @@ export default function TodoList() {
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
-                {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate}</Text>}
+                {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate.toLocaleDateString()}</Text>}
+                {selectedTask && <Text style={styles.modalDueDate}>Description: {selectedTask.description ? selectedTask.description : 'No Description'}</Text>}
                 <Button title="Close" onPress={handleCloseModal} />
               </View>
             </View>
           </Modal>
         )}
+        <Modal
+          visible={datePickerVisible}
+          animationType="fade"
+          transparent={true}
+        >
+          <View style={{ ...styles.modalContainer }}>
+            <View style={{ ...styles.modalContent }}>
+
+              <View style={{ padding: 20 }}>
+                <Text style={{ fontWeight: 'bold' }}>Year:</Text>
+                <RNPickerSelect
+                  items={years.map(year => ({ label: year.toString(), value: year }))}
+                  onValueChange={value => setSelectedYear(value)}
+                  value={selectedYear}
+                />
+
+                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Month:</Text>
+                <RNPickerSelect
+                  items={months}
+                  onValueChange={value => setSelectedMonth(value)}
+                  value={selectedMonth}
+                />
+
+                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Day:</Text>
+                <RNPickerSelect
+                  items={days.map(day => ({ label: day.toString(), value: day }))}
+                  onValueChange={value => setSelectedDay(value)}
+                  value={selectedDay}
+                />
+              </View>
+              <View style={{ paddingTop: 10 }}>
+                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={datePickerSubmit}>Submit</Text>
+
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
 
     </>
