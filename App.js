@@ -86,7 +86,7 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name={!language ? "Profile" : "资料"} children={() => <ProfileScreen language={language}  rerender={(navigation) => {
+        <Tab.Screen name={!language ? "Profile" : "资料"} children={() => <ProfileScreen rerender={(navigation) => {
           setLanguage(!language)
 
         }} />} options={{

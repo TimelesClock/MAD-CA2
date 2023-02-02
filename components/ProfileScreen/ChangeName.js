@@ -20,7 +20,7 @@ export default function ChangeName(props) {
                 onPress={() => close()}>
                 <AntDesign name="closecircle" size={24} color="black" />
             </Pressable>
-            <Text style={{ fontWeight: "bold" }}>{!language ? "Change profile Name" : "删除所有数据确认"}</Text>
+            <Text style={{ fontWeight: "bold" }}>{!language ? "Change profile Name" : "更改个人资料名称"}</Text>
             <SafeAreaView>
                 <TextInput
                     defaultValue="Your Name"
@@ -51,7 +51,7 @@ export default function ChangeName(props) {
                 }
                 
             }}>
-                <Text>Confirm</Text>
+                <Text>{!language ? "Confirm" : "确认"}</Text>
             </Pressable>
 
         </View>

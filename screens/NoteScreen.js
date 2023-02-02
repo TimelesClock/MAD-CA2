@@ -17,6 +17,7 @@ LogBox.ignoreLogs([
 function TxtContent(props) {
 
     const route = useRoute()
+    const language = route.params.language
     const [name,setName] = React.useState(route.params.name)
     const [data,setData] = React.useState(route.params.data)
     const iteration = route.params.iteration
@@ -63,8 +64,8 @@ function TxtContent(props) {
                                 onPress={() => setFilesModal(!filesModal)}>
                                 <AntDesign name="closecircle" size={24} color="black" />
                             </Pressable>
-                            <Text style={{ fontWeight: 'bold' }}>Edit Notes</Text>
-                            <Text style={{ marginTop: 5, fontWeight: 'bold' }}>Title:</Text>
+                            <Text style={{ fontWeight: 'bold' }}>{!language ? "Edit Notes" : "编辑笔记"}</Text>
+                            <Text style={{ marginTop: 5, fontWeight: 'bold' }}>{!language ? "Title:" : "称号"}</Text>
                             <SafeAreaView>
                                 <TextInput
                                     placeholder={name}
@@ -74,7 +75,7 @@ function TxtContent(props) {
                                     value={fileName}
                                 />
                             </SafeAreaView>
-                            <Text style={{ marginTop: 5, fontWeight: 'bold' }}>Content:</Text>
+                            <Text style={{ marginTop: 5, fontWeight: 'bold' }}>{!language ? "Content:" : "内容"}</Text>
                             <SafeAreaView>
                                 <TextInput
 
@@ -104,7 +105,7 @@ function TxtContent(props) {
                                 getData()
                                 setFilesModal(!filesModal)
                             }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
-                                <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
+                                <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Submit" : "提交"}</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -140,7 +141,7 @@ function TxtContent(props) {
 
                             }} style={[styles.button, { marginTop: 50 }]}>
                                 <Text style={{ fontWeight: 'bold' }}>
-                                    Confirm Deletion
+                                {!language ? "Delete Confirmation" : "删除数据确认"}
                                 </Text>
                             </Pressable>
 
@@ -168,11 +169,11 @@ function TxtContent(props) {
 
 function Child(props) {
     const route = useRoute()
-    // const fileData = route.params.fileData
-    // const setFileData = route.params.setFileData
+
+    const language = route.params.language
+
     const folderIteration = route.params.folderIteration
-    // const setFolderData = route.params.setFolderData
-    // const folderData = route.params.folderData
+
 
     const [fileName, onChangeFileName] = React.useState();
     const getDataRe = route.params.getDataRe
@@ -226,7 +227,7 @@ function Child(props) {
 
                             }} style={[styles.button, { marginTop: 50 }]}>
                                 <Text style={{ fontWeight: 'bold' }}>
-                                    Confirm Deletion
+                                {!language ? "Delete Confirmation" : "删除数据确认"}
                                 </Text>
                             </Pressable>
 
@@ -291,8 +292,8 @@ function Child(props) {
                             onPress={() => setFilesModal(!filesModal)}>
                             <AntDesign name="closecircle" size={24} color="black" />
                         </Pressable>
-                        <Text style={{ fontWeight: 'bold' }}>New Notes</Text>
-                        <Text style={{ padding: 50, fontWeight: 'bold' }}>New Name:</Text>
+                        <Text style={{ fontWeight: 'bold' }}>{!language ? "New Notes" : "新笔记"}</Text>
+                        <Text style={{ padding: 50, fontWeight: 'bold' }}>{!language ? "New Name:" : "新名字:"}</Text>
                         <SafeAreaView>
                             <TextInput
                                 defaultValue=""
@@ -311,7 +312,7 @@ function Child(props) {
                             getDataRe()
                             setFilesModal(!filesModal)
                         }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
-                            <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Submit" : "提交"}</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -334,11 +335,20 @@ function Folder(props) {
     const navigation = useNavigation();
     const route = useRoute()
 
-    const [fileName, onChangeFileName] = React.useState();
-    const [folderName, onChangeFolderName] = React.useState();
+    const [fileName, onChangeFileName] = React.useState("");
+    const [folderName, onChangeFolderName] = React.useState("");
 
     const [folderData, setFolderData] = React.useState([])
     const [fileData, setFileData] = React.useState([])
+    
+    const [language, setLanguage] = React.useState(false)
+    AsyncStorage.getItem("language")
+        .then((value) => {
+            setLanguage(value === 'true')
+        })
+        .catch((error) => {
+            console.error(error)
+        })
 
     async function getData() {
         await AsyncStorage.getItem("notes")
@@ -363,7 +373,7 @@ function Folder(props) {
     } else {
         folders = folderData.map((obj, iteration) =>
             <Pressable onPress={() => {
-                navigation.push("Child", { "files": obj.files, "folderIteration": iteration, "getDataRe": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData, "setFolderData": setFolderData })
+                navigation.push("Child", { "language":language,"files": obj.files, "folderIteration": iteration, "getDataRe": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData, "setFolderData": setFolderData })
             }} style={{ marginHorizontal: 4 }} key={iteration}>
                 <Text style={{ marginLeft: 5 }}>{obj.name}</Text>
                 <AntDesign name="folder1" size={200} color="black" />
@@ -376,7 +386,7 @@ function Folder(props) {
     } else {
         file = fileData.map((i, iteration) =>
             <View key={i.name + iteration.toString()}>
-                <Pressable onPress={() => { navigation.push("TxtContent", { "name": i.name, "data": i.data, "iteration": iteration, "getData": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData }) }} style={{ marginHorizontal: 4, marginVertical: 5 }}>
+                <Pressable onPress={() => { navigation.push("TxtContent", { "language":language,"name": i.name, "data": i.data, "iteration": iteration, "getData": () => { getData() }, "fileData": fileData, "setFileData": setFileData, "folderData": folderData }) }} style={{ marginHorizontal: 4, marginVertical: 5 }}>
                     <View style={{ borderWidth: 1, width: 200, height: 200, alignContent: 'center' }}>
                         <Text style={{ alignSelf: "center", fontWeight: 'bold', fontSize: 20 }}>{i.name}</Text>
                         <Text numberOfLines={8} style={{ alignSelf: "center", padding: 8 }}>{i.data}</Text>
@@ -405,8 +415,8 @@ function Folder(props) {
                             onPress={() => setFilesModal(!filesModal)}>
                             <AntDesign name="closecircle" size={24} color="black" />
                         </Pressable>
-                        <Text style={{ fontWeight: 'bold' }}>New Notes</Text>
-                        <Text style={{ padding: 50, fontWeight: 'bold' }}>New Name:</Text>
+                        <Text style={{ fontWeight: 'bold' }}>{!language ? "New Notes" : "新笔记"}</Text>
+                        <Text style={{ padding: 50, fontWeight: 'bold' }}>{!language ? "New Name" : "新名字"}</Text>
                         <SafeAreaView>
                             <TextInput
                                 defaultValue=""
@@ -425,7 +435,7 @@ function Folder(props) {
                             onChangeFileName("")
                             setFilesModal(!filesModal)
                         }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
-                            <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Submit" : "提交"}</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -446,8 +456,8 @@ function Folder(props) {
                             onPress={() => setFolderModal(!folderModal)}>
                             <AntDesign name="closecircle" size={24} color="black" />
                         </Pressable>
-                        <Text style={{ fontWeight: 'bold' }}>New Collection</Text>
-                        <Text style={{ padding: 50, fontWeight: 'bold' }}>New Name:</Text>
+                        <Text style={{ fontWeight: 'bold' }}>{!language ? "New Collection" : "新组"}</Text>
+                        <Text style={{ padding: 50, fontWeight: 'bold' }}>{!language ? "New Name" : "新名字"}</Text>
                         <SafeAreaView>
                             <TextInput
                                 defaultValue=""
@@ -466,7 +476,7 @@ function Folder(props) {
                             getData()
                             setFolderModal(!folderModal)
                         }} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, marginVertical: 60 }]}>
-                            <Text style={{ fontWeight: "bold", color: "black" }}>Submit</Text>
+                            <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Submit" : "提交"}</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -509,7 +519,7 @@ export default function NoteScreen(props) {
             }}>
                 <MainStack.Screen options={{ headerShown: false }} name="Main" children={() => <Folder files={props.files} folders={props.folders} />} />
                 <MainStack.Screen options={{ title: "Folder" }} name="Child" component={Child} />
-                <MainStack.Screen name="TxtContent" component={TxtContent} />
+                <MainStack.Screen options = {{title: "Text Content"}} name="TxtContent" component={TxtContent} />
             </MainStack.Navigator>
         </>
     )
