@@ -25,6 +25,7 @@ export default function TodoList() {
   ]);
 
 
+
   const [searchTask, setSearchTask] = React.useState('');
   const [modalVisible, setModalVisible] = React.useState(false);
   const [taskTitle, setTaskTitle] = React.useState('');
@@ -39,9 +40,10 @@ export default function TodoList() {
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [selectedMonth, setSelectedMonth] = React.useState(null);
   const [selectedDay, setSelectedDay] = React.useState(null);
+  const [newTasksObj, setNewTasksObj] = React.useState([]);
 
 
-  const years = Array.from({ length: 2032 - 2012 + 1 }, (_, i) => 2012 + i);
+  const years = Array.from({ length: 2032 - 2012 + 1 }, (a, i) => 2012 + i);
 
   const months = [
     { label: 'January', value: 1 },
@@ -69,8 +71,6 @@ export default function TodoList() {
   };
 
 
-
-
   const handleSectionPress = (title) => {
     setHiddenSections({
       ...hiddenSections,
@@ -91,6 +91,7 @@ export default function TodoList() {
   ];
 
   const handleSubmit = () => {
+    setTaskDueDate(selectedYear + "-" + handleMonthValue(selectedMonth) + "-" + selectedDay);
     const newTask = { title: taskTitle, dueDate: new Date(taskDueDate), completed: false, selected: false, description: "", showInCalendar: isEnabled, showInTodo: true };
     console.log(newTask);
     setTasks([...tasks, newTask]);
@@ -98,7 +99,7 @@ export default function TodoList() {
     setTaskTitle('');
     setIsEnabled(false)
     setModalVisible(false);
-
+    storeData();
   };
 
   const handleDatePick = () => {
@@ -113,8 +114,27 @@ export default function TodoList() {
     return new Date(year, month, 0).getDate();
   };
 
-  const days = Array.from({ length: selectedMonth ? daysInMonth(selectedMonth, selectedYear) : 31 }, (_, i) => i + 1);
+  const days = Array.from({ length: selectedMonth ? daysInMonth(selectedMonth, selectedYear) : 31 }, (a, i) => {
+    const day = i + 1;
+    return day < 10 ? `0${day}` : day;
+  });
+  const handleMonthValue = (month) =>{
+    if(month < 10){
+      month = "0"+ month;
+      return month;
+    }
+    return month;
+  }
+  
 
+  const storeData = async () => {
+    try {
+      const stringifiedTasks = JSON.stringify(tasks);
+      await AsyncStorage.setItem('tasks', stringifiedTasks);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <>
 
@@ -174,9 +194,12 @@ export default function TodoList() {
               />
               <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, }}>
                 <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Due date" : "截止日期"}</Text>
+                <View style={{ maxWidth: "40%", flexDirection: "row", alignItems: 'center' }}>
+                <Text style={{ fontSize: 12, color: "grey" }}>{selectedYear}-{handleMonthValue(selectedMonth)}-{selectedDay}</Text>
                 <AntDesign name="right" size={24} color="black" onPress={handleDatePick} />
+                </View>
               </View>
-              <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, borderTopColor: 'grey', borderTopWidth: 1, }}>
+              <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, paddingRight: 20, borderTopColor: 'grey', borderTopWidth: 1, }}>
                 <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Reminder" : "提醒"}</Text>
                 <View style={{ maxWidth: "40%", flexDirection: "row", alignItems: 'center' }}>
                   <Text style={{ fontSize: 12, color: "grey" }}>{!language ? "Two Days Before" : "两天前"}</Text>
@@ -243,7 +266,7 @@ export default function TodoList() {
                   value={selectedDay}
                 />
               </View>
-              <View style={{ paddingTop: 10 }}>
+              <View style={{ paddingTop: 10, alignSelf: "center" }}>
                 <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={datePickerSubmit}>Submit</Text>
 
               </View>

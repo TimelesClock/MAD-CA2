@@ -171,7 +171,6 @@ export default function ProfileScreen(props) {
                              AsyncStorage.multiGet(["notes","uuid"])
                                 .then(async (data)=>{
                                     if (data){
-
                                         supabase.from("notes")
                                             .update({data:JSON.parse(data[0][1])})
                                             .eq('id',data[1][1])
@@ -199,6 +198,39 @@ export default function ProfileScreen(props) {
                                 .catch((error)=>{
                                     Alert.alert(error)
                                 })
+
+                                AsyncStorage.multiGet(["tasks","uuid"])
+                                .then(async (data)=>{
+                                    if (data){
+
+                                        supabase.from("tasks")
+                                            .update({data:JSON.parse(data[0][1])})
+                                            .eq('id',data[1][1])
+                                            .then(data=>{
+
+                                            })
+                                            .catch((error)=>{
+
+                                                Alert.alert(error)
+                                            })
+
+                                    }else{
+                                         supabase.from("tasks")
+                                            .update({data:{title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true}})
+                                            .eq('id',data[1][1])
+                                            .then(data=>{
+
+                                            })
+                                            .catch((error)=>{
+
+                                                Alert.alert(error)
+                                            })
+                                    }
+                                })
+                                .catch((error)=>{
+                                    Alert.alert(error)
+                                })
+
                             setLogin(!login)
                             
                         }}>
