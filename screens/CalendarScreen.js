@@ -5,12 +5,14 @@
 // Class: DIT/FT/1B/02
 import * as React from 'react';
 
-import { StyleSheet, Text, View, SectionList, TouchableOpacity, Modal, Button} from 'react-native';
+import { StyleSheet, Text, View, SectionList, TouchableOpacity, Modal, Button } from 'react-native';
 import { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
-import { MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNPickerSelect from 'react-native-picker-select';
+import { setYear } from 'date-fns';
 
 export default function CalendarScreen() {
 
@@ -23,18 +25,26 @@ export default function CalendarScreen() {
       console.error(error)
     })
 
-    
-  const [dayEvents, setdayEvents] = React.useState([
-    { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description:"", showInCalendar: true, showInTodo: true },
-    { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description:"", showInCalendar: true, showInTodo: true },
-    { title: 'Home-Based Learning Packege', dueDate: new Date('2023-01-17'), caompleted: false, selected: false, description:"", showInCalendar: true, showInTodo: true },
-    { title: 'Java Assignment 1', dueDate: new Date('2023-01-02'), completed: true, selected: false, description:"", showInCalendar: true, showInTodo: true },
-]);
+  const [tasks, setTasks] = React.useState([
+    { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+    { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+    { title: 'Home-Based Learning Packege', dueDate: new Date('2023-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+    { title: 'Java Assignment 1', dueDate: new Date('2023-01-02'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  ]);
+  const filteredEvents = tasks.filter(event => event.showInCalendar !== false);
+
+
+  const [dayEvents, setdayEvents] = React.useState(filteredEvents);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [selectedTask, setSelectedTask] = React.useState(null);
-  
+  const [showDateModal, setShowDateModal] = React.useState(false);
+  const [selectedYear, setSelectedYear] = React.useState(null);
+  const [selectedMonth, setSelectedMonth] = React.useState(null);
+  const [selectedDay, setSelectedDay] = React.useState(null);
+  const [calendarDate, setCalendarDate] = React.useState(new Date().toISOString().substring(0, 10))
+
 
 
   const resetMarkedDates = {};
@@ -45,26 +55,26 @@ export default function CalendarScreen() {
   function handleDayPress(day) {
     setSelectedDate(day.dateString);
     var updatedDayEvents = dayEvents.map(item => {
-        if (item.dueDate.toISOString().substring(0, 10) == day.dateString) {
-            item.selected = true;
-        } else {
-            item.selected = false;
-        }
-        return item;
+      if (item.dueDate.toISOString().substring(0, 10) == day.dateString) {
+        item.selected = true;
+      } else {
+        item.selected = false;
+      }
+      return item;
     });
     setdayEvents(updatedDayEvents);
     setSelectedEvents(updatedDayEvents.filter(dayEvents => dayEvents.selected == true));
     // update the selected date in markedDates
     var eventForSelectedDate = dayEvents.find(event => event.dueDate.toISOString().substring(0, 10) == day.dateString);
-    if(eventForSelectedDate) {
-        setMarkedDates({...resetMarkedDates, [day.dateString]: { marked: true, selected: true, selectedColor: 'red'  }});
+    if (eventForSelectedDate) {
+      setMarkedDates({ ...resetMarkedDates, [day.dateString]: { marked: true, selected: true, selectedColor: 'red' } });
     } else {
-        setMarkedDates({...resetMarkedDates, [day.dateString]: { selected: true, selectedColor: 'red' }});
+      setMarkedDates({ ...resetMarkedDates, [day.dateString]: { selected: true, selectedColor: 'red' } });
     }
-}
+  }
 
 
-const handleTaskClick = (task) => {
+  const handleTaskClick = (task) => {
     setSelectedTask(task);
   };
 
@@ -72,27 +82,81 @@ const handleTaskClick = (task) => {
     setSelectedTask(null);
   };
 
-const navigation = useNavigation();
+  const navigation = useNavigation();
 
   function handleTimerPress() {
     navigation.navigate('Timer');
   }
 
+  const handleCalendarPress = () => {
+    setShowDateModal(true)
 
+  }
+
+  const handleCloseCallendarModal = () =>{
+    setShowDateModal(false)
+    setSelectedYear(null)
+    setSelectedMonth(null)
+    setSelectedDay(null)
+  }
+
+  const years = Array.from({ length: 2032 - 2012 + 1 }, (a, i) => 2012 + i);
+
+  const months = [
+    { label: 'January', value: 1 },
+    { label: 'February', value: 2 },
+    { label: 'March', value: 3 },
+    { label: 'April', value: 4 },
+    { label: 'May', value: 5 },
+    { label: 'June', value: 6 },
+    { label: 'July', value: 7 },
+    { label: 'August', value: 8 },
+    { label: 'September', value: 9 },
+    { label: 'October', value: 10 },
+    { label: 'November', value: 11 },
+    { label: 'December', value: 12 },
+  ];
+
+  const daysInMonth = (month, year) => {
+    return new Date(year, month, 0).getDate();
+  };
+
+  const days = Array.from({ length: selectedMonth ? daysInMonth(selectedMonth, selectedYear) : 31 }, (a, i) => {
+    const day = i + 1;
+    return day < 10 ? `0${day}` : day;
+  });
+  const handleMonthValue = (month) => {
+    if (month < 10) {
+      month = "0" + month;
+      return month;
+    }
+    return month;
+  }
+
+  const handleQuickNav=()=> {
+    setCalendarDate(selectedYear + "-" + handleMonthValue(selectedMonth) + "-" + selectedDay);
+    console.log(calendarDate)
+    setShowDateModal(false);
+    setSelectedYear(null);
+    setSelectedMonth(null);
+    setSelectedDay(null);
+  }
 
 
   return (
     <View style={styles.container}>
-      <View style={{backgroundColor: '#FFFFFF'}}>
+      <View style={{ backgroundColor: '#FFFFFF' }}>
         <Calendar style={{ width: 395 }}
+          initialDate={calendarDate}
+
           onDayPress={handleDayPress}
           markedDates={markedDates}
           theme={{
-              selectedDayBackgroundColor: 'red',
-              selectedDayTextColor: 'white',
-              dotColor:'blue',
+            selectedDayBackgroundColor: 'red',
+            selectedDayTextColor: 'white',
+            dotColor: 'blue',
           }}
-          />
+        />
 
       </View>
       <View style={{ flex: 1 }}>
@@ -107,36 +171,68 @@ const navigation = useNavigation();
               marginVertical: 4,
               borderRadius: 20,
               width: '90%'
-          
-          
-            }}><Text style={{fontSize: 20}} onPress={() => handleTaskClick(item)}>{item.title}</Text></View>}
-            renderSectionHeader={() => <Text style= {{fontSize:30, borderBottomWidth:1}}>{!language ? "Events for" : "今日活动："} {selectedDate}</Text>}
+
+
+            }}><Text style={{ fontSize: 20 }} onPress={() => handleTaskClick(item)}>{item.title}</Text></View>}
+            renderSectionHeader={() => <Text style={{ fontSize: 30, borderBottomWidth: 1 }}>{!language ? "Events for" : "今日活动："} {selectedDate}</Text>}
           />
         )}
-      
-        
+
+
       </View>
+      <View style={{ alignSelf: 'flex-end', left: -8, top: -10}}>
+        <AntDesign name="calendar" size={55} color="black" onPress={handleCalendarPress} />
+      </View>
+      <Modal visible={showDateModal}>
+        <View style={{ padding: 20 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 30 }}>Quick Navigation</Text>
+          <View style = {{padding: 10, paddingTop: 20}}>
+            <Text style={{ fontWeight: 'bold' }}>Year:</Text>
+            <RNPickerSelect
+              items={years.map(year => ({ label: year.toString(), value: year }))}
+              onValueChange={value => setSelectedYear(value)}
+              value={selectedYear}
+            />
+
+            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Month:</Text>
+            <RNPickerSelect
+              items={months}
+              onValueChange={value => setSelectedMonth(value)}
+              value={selectedMonth}
+            />
+
+            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Day:</Text>
+            <RNPickerSelect
+              items={days.map(day => ({ label: day.toString(), value: day }))}
+              onValueChange={value => setSelectedDay(value)}
+              value={selectedDay}
+            />
+            <Button title="Set!" onPress={handleQuickNav} />
+            <Button title="Back" onPress={handleCloseCallendarModal} />
+          </View>
+        </View>
+      </Modal>
       <View>
-      <TouchableOpacity onPress={handleTimerPress}>
-        <MaterialIcons 
-          style={{ alignSelf: 'flex-end', left: 170, margin: 10}} 
-          name="timer" 
-          size={60} 
-          color="black" 
-        />
-      </TouchableOpacity>
-    </View>
-    {selectedTask && (
-          <Modal visible={!!selectedTask} animationType="fade" transparent={true}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
-                {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate.toISOString().substring(0, 10)}</Text>}
-                <Button title="Close" onPress={handleCloseModal} />
-              </View>
+        <TouchableOpacity onPress={handleTimerPress}>
+          <MaterialIcons
+            style={{ alignSelf: 'flex-end', left: 170, margin: 10 }}
+            name="timer"
+            size={60}
+            color="black"
+          />
+        </TouchableOpacity>
+      </View>
+      {selectedTask && (
+        <Modal visible={!!selectedTask} animationType="fade" transparent={true}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
+              {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate.toISOString().substring(0, 10)}</Text>}
+              <Button title="Close" onPress={handleCloseModal} />
             </View>
-          </Modal>
-        )}
+          </View>
+        </Modal>
+      )}
     </View>
 
   );

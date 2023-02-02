@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, Button, TextInput, SectionList, Modal, DateTimePicker, Switch } from 'react-native';
+import { Text, View, Button, TextInput, SectionList, Modal, Switch} from 'react-native';
 import Constants from 'expo-constants';
 import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,13 +34,15 @@ export default function TodoList() {
   const [selectedTask, setSelectedTask] = React.useState(null);
   const [isEnabled, setIsEnabled] = React.useState(false);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const [completeIsEnabled, setCompleteIsEnabled] = React.useState(false);
+  const toggleCompletedSwitch = () => setCompleteIsEnabled(previousState => !previousState);
   const [date, setDate] = React.useState(new Date());
   const [hiddenSections, setHiddenSections] = React.useState({});
   const [datePickerVisible, setDatePickerVisible] = React.useState(false);
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [selectedMonth, setSelectedMonth] = React.useState(null);
   const [selectedDay, setSelectedDay] = React.useState(null);
-  const [newTasksObj, setNewTasksObj] = React.useState([]);
+  
 
 
   const years = Array.from({ length: 2032 - 2012 + 1 }, (a, i) => 2012 + i);
@@ -118,14 +120,26 @@ export default function TodoList() {
     const day = i + 1;
     return day < 10 ? `0${day}` : day;
   });
-  const handleMonthValue = (month) =>{
-    if(month < 10){
-      month = "0"+ month;
+  const handleMonthValue = (month) => {
+    if (month < 10) {
+      month = "0" + month;
       return month;
     }
     return month;
   }
-  
+
+  async function getData() {
+
+    try {
+      const tasks = await AsyncStorage.getItem('tasks');
+      return JSON.parse(tasks);
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+
+  }
+
 
   const storeData = async () => {
     try {
@@ -135,6 +149,29 @@ export default function TodoList() {
       console.error(error);
     }
   };
+
+  const handleDeleteTask = (taskToDelete) => {
+    setTasks(tasks.filter(task => task !== taskToDelete));
+    handleCloseModal();
+  };
+
+  const handleCompletemark= ()=>{
+    toggleCompleted(findIndex(selectedTask))
+  }
+
+  const findIndex = (selectedTask) => {
+    const index = tasks.findIndex((task) => task.title === selectedTask.title);
+    return index;
+  }
+  function toggleCompleted(index) {
+    toggleCompletedSwitch()
+    setTasks(prevTasks => {
+      const newTasks = [...prevTasks];
+      newTasks[index].completed = !newTasks[index].completed;
+      return newTasks;
+    });
+  }
+  
   return (
     <>
 
@@ -155,6 +192,7 @@ export default function TodoList() {
             if (!hiddenSections[section.title]) {
               return (
                 <View>
+                  
                   <Text style={styles.item} onPress={() => handleTaskClick(item)}>
                     {item.title}  {item.dueDate.toLocaleDateString()}
                   </Text>
@@ -195,8 +233,8 @@ export default function TodoList() {
               <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, }}>
                 <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Due date" : "截止日期"}</Text>
                 <View style={{ maxWidth: "40%", flexDirection: "row", alignItems: 'center' }}>
-                <Text style={{ fontSize: 12, color: "grey" }}>{selectedYear}-{handleMonthValue(selectedMonth)}-{selectedDay}</Text>
-                <AntDesign name="right" size={24} color="black" onPress={handleDatePick} />
+                  <Text style={{ fontSize: 12, color: "grey" }}>{selectedYear}-{handleMonthValue(selectedMonth)}-{selectedDay}</Text>
+                  <AntDesign name="right" size={24} color="black" onPress={handleDatePick} />
                 </View>
               </View>
               <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, paddingRight: 20, borderTopColor: 'grey', borderTopWidth: 1, }}>
@@ -228,10 +266,26 @@ export default function TodoList() {
           <Modal visible={!!selectedTask} animationType="fade" transparent={true}>
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
+                
                 {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
                 {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate.toLocaleDateString()}</Text>}
                 {selectedTask && <Text style={styles.modalDueDate}>Description: {selectedTask.description ? selectedTask.description : 'No Description'}</Text>}
-                <Button title="Close" onPress={handleCloseModal} />
+                <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250}}>
+                <Text style={{ fontSize: 18 }}>{!language ? "Mark as completed" : "记录为已完成"}</Text>
+                <Switch
+                  style={{ bottom: 12 }}
+                  trackColor={{ false: "#767577", true: "#81b0ff" }}
+                  thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={handleCompletemark}
+                  value={completeIsEnabled}
+                />
+              </View>
+                <View style={{...styles.buttonContainer, flexDirection: "row", justifyContent: 'space-between'}}>
+                  <Button title="Close" onPress={handleCloseModal} />
+                  <Button title="Delete" onPress={() => handleDeleteTask(selectedTask)}  color="red"/>
+                  
+                </View>
               </View>
             </View>
           </Modal>
@@ -313,7 +367,7 @@ var styles = {
     marginVertical: 4,
     fontSize: 20,
     borderRadius: 20,
-    width: '90%'
+    width: 340
 
 
   },
@@ -379,7 +433,9 @@ var styles = {
 
   },
   buttonContainer: {
-    alignSelf: "flex-start",
+    alignSelf: "center",
+    width : 250
+
   },
   buttonSubmit: {
     alignItems: 'center',

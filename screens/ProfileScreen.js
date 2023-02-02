@@ -171,6 +171,7 @@ export default function ProfileScreen(props) {
                              AsyncStorage.multiGet(["notes","uuid"])
                                 .then(async (data)=>{
                                     if (data){
+                                        console.log(data)
                                         supabase.from("notes")
                                             .update({data:JSON.parse(data[0][1])})
                                             .eq('id',data[1][1])
@@ -202,12 +203,12 @@ export default function ProfileScreen(props) {
                                 AsyncStorage.multiGet(["tasks","uuid"])
                                 .then(async (data)=>{
                                     if (data){
-
+                                        console.log(data[0][1][0])
                                         supabase.from("tasks")
                                             .update({data:JSON.parse(data[0][1])})
                                             .eq('id',data[1][1])
                                             .then(data=>{
-
+                                                
                                             })
                                             .catch((error)=>{
 
@@ -243,7 +244,16 @@ export default function ProfileScreen(props) {
                                     AsyncStorage.setItem("notes",JSON.stringify(data.data[0].data))
                                 })
                                 .catch((error)=>{
-                                    Alert.alert(error)
+                                    Alert.alert(error.message)
+                                })
+
+
+                            await supabase.from("tasks").select("data")
+                                .then((data)=>{
+                                    AsyncStorage.setItem("tasks",JSON.stringify(data.data[0].data))
+                                })
+                                .catch((error)=>{
+                                    Alert.alert(error.message)
                                 })
                             setLogin(!login)
                             rerender()
