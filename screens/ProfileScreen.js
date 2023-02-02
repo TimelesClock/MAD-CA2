@@ -72,7 +72,7 @@ export default function ProfileScreen(props) {
     const [NameModal,setNameModal] = React.useState(false)
     const language = props.language
     const rerender = props.rerender
-    const [Name, onChangeName] = React.useState()
+
 
     AsyncStorage.getItem("access_token")
         .then(async (value) => {
@@ -156,15 +156,30 @@ export default function ProfileScreen(props) {
                              AsyncStorage.multiGet(["notes","uuid"])
                                 .then(async (data)=>{
                                     if (data){
-                                         supabase.from("notes")
+
+                                        supabase.from("notes")
                                             .update({data:JSON.parse(data[0][1])})
                                             .eq('id',data[1][1])
+                                            .then(data=>{
+
+                                            })
+                                            .catch((error)=>{
+
+                                                Alert.alert(error)
+                                            })
+
                                     }else{
                                          supabase.from("notes")
                                             .update({data:{files:[],folders:[]}})
                                             .eq('id',data[1][1])
+                                            .then(data=>{
+
+                                            })
+                                            .catch((error)=>{
+
+                                                Alert.alert(error)
+                                            })
                                     }
-                                    // console.log(JSON.parsedata[0][1])
                                 })
                                 .catch((error)=>{
                                     Alert.alert(error)
