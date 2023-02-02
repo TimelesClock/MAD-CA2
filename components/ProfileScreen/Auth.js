@@ -1,3 +1,8 @@
+// Name: Leong Yu Zhi Andy
+
+// Admission Number: P2205865
+
+// Class: DIT/FT/1B/02
 import React, { useState } from 'react'
 import { Alert, StyleSheet, View, Pressable, Text } from 'react-native'
 import { supabase } from '../../supabase'
