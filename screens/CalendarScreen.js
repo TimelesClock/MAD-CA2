@@ -12,7 +12,7 @@ import { MaterialIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
-import { setYear } from 'date-fns';
+import { setSeconds, setYear } from 'date-fns';
 
 
 export default function CalendarScreen() {
@@ -50,6 +50,7 @@ export default function CalendarScreen() {
       })
     let filteredEvents = tasks.filter(event => event.showInCalendar !== false);
     setdayEvents(filteredEvents)
+
   }
 
 
@@ -68,9 +69,9 @@ export default function CalendarScreen() {
   const [markedDates, setMarkedDates] = useState({});
   const [selectedTask, setSelectedTask] = React.useState(null);
   const [showDateModal, setShowDateModal] = React.useState(false);
-  const [selectedYear, setSelectedYear] = React.useState(null);
-  const [selectedMonth, setSelectedMonth] = React.useState(null);
-  const [selectedDay, setSelectedDay] = React.useState(null);
+  const [selectedYear, setSelectedYear] = React.useState(2023);
+  const [selectedMonth, setSelectedMonth] = React.useState(1);
+  const [selectedDay, setSelectedDay] = React.useState('01');
   const [calendarDate, setCalendarDate] = React.useState(new Date().toISOString().substring(0, 10))
 
   React.useEffect(() => {
@@ -79,7 +80,7 @@ export default function CalendarScreen() {
         <Pressable onPress={() => {
           setRefresh(!refresh)
         }}>
-          <FontAwesome name="refresh" size={24} color="black" />
+          <FontAwesome name="refresh" size={24} color="black" style={{right:10}}/>
         </Pressable>
       )
     })
@@ -139,26 +140,26 @@ export default function CalendarScreen() {
 
   const handleCloseCallendarModal = () => {
     setShowDateModal(false)
-    setSelectedYear(null)
-    setSelectedMonth(null)
-    setSelectedDay(null)
+    setSelectedYear(2023);
+    setSelectedMonth(1);
+    setSelectedDay('01');
   }
 
   const years = Array.from({ length: 2032 - 2012 + 1 }, (a, i) => 2012 + i);
 
   const months = [
-    { label: 'January', value: 1 },
-    { label: 'February', value: 2 },
-    { label: 'March', value: 3 },
-    { label: 'April', value: 4 },
-    { label: 'May', value: 5 },
-    { label: 'June', value: 6 },
-    { label: 'July', value: 7 },
-    { label: 'August', value: 8 },
-    { label: 'September', value: 9 },
-    { label: 'October', value: 10 },
-    { label: 'November', value: 11 },
-    { label: 'December', value: 12 },
+    { label: !language ? "January" : "一月", value: 1 },
+    { label: !language ? 'February' : "二月", value: 2 },
+    { label: !language ? 'March' : "三月", value: 3 },
+    { label: !language ? "April" : "四月", value: 4 },
+    { label: !language ? "May" : "五月", value: 5 },
+    { label: !language ? "June" : "六月", value: 6 },
+    { label: !language ? "July" : "七月", value: 7 },
+    { label: !language ? "August" : "八月", value: 8 },
+    { label: !language ? "September" : "九月", value: 9 },
+    { label: !language ? "October" : "十月", value: 10 },
+    { label: !language ? "November" : "十一月", value: 11 },
+    { label: !language ? "December" : "十二月", value: 12 },
   ];
 
   const daysInMonth = (month, year) => {
@@ -178,12 +179,19 @@ export default function CalendarScreen() {
   }
 
   const handleQuickNav = () => {
+    if(selectedYear==null){
+      setSelectedYear(new Date().getFullYear.toString())
+    }
+    if(selectedMonth==null){
+      setSelectedMonth(1)
+    }
+    if(selectedDay == null){
+      setSelectedDay("01")
+    }
     setCalendarDate(selectedYear + "-" + handleMonthValue(selectedMonth) + "-" + selectedDay);
     console.log(calendarDate)
     setShowDateModal(false);
-    setSelectedYear(null);
-    setSelectedMonth(null);
-    setSelectedDay(null);
+
   }
 
 
@@ -218,7 +226,13 @@ export default function CalendarScreen() {
 
 
             }}><Text style={{ fontSize: 20 }} onPress={() => handleTaskClick(item)}>{item.title}</Text></View>}
-            renderSectionHeader={() => <Text style={{ fontSize: 30, borderBottomWidth: 1 }}>{!language ? "Events for" : "今日活动："} {selectedDate}</Text>}
+            renderSectionHeader={() => {
+              if (selectedEvents.length === 0) {
+                return <Text style={{ fontSize: 30, borderBottomWidth: 1 }}>{!language ? "No events for" : "没有活动: "} {selectedDate}</Text>;
+              } else {
+                return <Text style={{ fontSize: 30, borderBottomWidth: 1 }}>{!language ? "Events for" : "今日活动："} {selectedDate}</Text>;
+              }
+            }}
           />
         )}
 
@@ -231,28 +245,30 @@ export default function CalendarScreen() {
         <View style={{ padding: 20 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 30 }}>Quick Navigation</Text>
           <View style={{ padding: 10, paddingTop: 20 }}>
-            <Text style={{ fontWeight: 'bold' }}>Year:</Text>
+            <Text style={{ fontWeight: 'bold' }}>{!language ? "Year:" : "年："}</Text>
             <RNPickerSelect
               items={years.map(year => ({ label: year.toString(), value: year }))}
               onValueChange={value => setSelectedYear(value)}
               value={selectedYear}
             />
 
-            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Month:</Text>
+            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>{!language ? "Month:" : "月："}</Text>
             <RNPickerSelect
               items={months}
               onValueChange={value => setSelectedMonth(value)}
               value={selectedMonth}
             />
 
-            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Day:</Text>
+            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>{!language ? "Day:" : "日："}</Text>
             <RNPickerSelect
               items={days.map(day => ({ label: day.toString(), value: day }))}
               onValueChange={value => setSelectedDay(value)}
               value={selectedDay}
             />
-            <Button title="Set!" onPress={handleQuickNav} />
-            <Button title="Back" onPress={handleCloseCallendarModal} />
+            <View style={{paddingVertical:50}}>
+            <Button title={!language ? "Set" : "确认"} onPress={handleQuickNav} />
+            </View>
+            <Button title={!language ? "Back" : "返回"} onPress={handleCloseCallendarModal} />
           </View>
         </View>
       </Modal>
@@ -271,7 +287,8 @@ export default function CalendarScreen() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
-              {selectedTask && <Text style={styles.modalDueDate}>Due Date: {new Date(selectedTask.dueDate).toISOString().substring(0, 10)}</Text>}
+              {selectedTask && <Text style={styles.modalDueDate}>{!language ? "Due Date: " : "截止日期： "}{new Date(selectedTask.dueDate).toISOString().substring(0, 10)}</Text>}
+              {selectedTask && <Text style={styles.modalDueDate}>{!language ? "Description: " : "简介： "} {selectedTask.description ? selectedTask.description : !language ? "No Description" : "无简介"}</Text>}
               <Button title="Close" onPress={handleCloseModal} />
             </View>
           </View>

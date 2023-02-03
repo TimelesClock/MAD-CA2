@@ -80,18 +80,18 @@ export default function TodoList(props) {
   const years = Array.from({ length: 2032 - 2012 + 1 }, (a, i) => 2012 + i);
 
   const months = [
-    { label: 'January', value: 1 },
-    { label: 'February', value: 2 },
-    { label: 'March', value: 3 },
-    { label: 'April', value: 4 },
-    { label: 'May', value: 5 },
-    { label: 'June', value: 6 },
-    { label: 'July', value: 7 },
-    { label: 'August', value: 8 },
-    { label: 'September', value: 9 },
-    { label: 'October', value: 10 },
-    { label: 'November', value: 11 },
-    { label: 'December', value: 12 },
+    { label: !language ? "January" : "一月", value: 1 },
+    { label: !language ? 'February' : "二月", value: 2 },
+    { label: !language ? 'March' : "三月", value: 3 },
+    { label: !language ? "April" : "四月", value: 4 },
+    { label: !language ? "May" : "五月", value: 5 },
+    { label: !language ? "June" : "六月", value: 6 },
+    { label: !language ? "July" : "七月", value: 7 },
+    { label: !language ? "August" : "八月", value: 8 },
+    { label: !language ? "September" : "九月", value: 9 },
+    { label: !language ? "October" : "十月", value: 10 },
+    { label: !language ? "November" : "十一月", value: 11 },
+    { label: !language ? "December" : "十二月", value: 12 },
   ];
 
 
@@ -182,6 +182,7 @@ export default function TodoList(props) {
   const handleDeleteTask = (taskToDelete) => {
     setTasks(tasks.filter(task => task !== taskToDelete));
     handleCloseModal();
+    storeData();
   };
 
   const handleCompletemark = () => {
@@ -218,12 +219,12 @@ export default function TodoList(props) {
           sections={sections}
           keyExtractor={(item, index) => item + index}
           renderItem={({ item, section }) => {
-            if (!hiddenSections[section.title]) {
+            if (!hiddenSections[section.title] && item.title.toLowerCase().includes(searchTask.toLowerCase())) {
               return (
                 <View>
 
                   <Text style={styles.item} onPress={() => handleTaskClick(item)}>
-                    {item.title}  {new Date(item.dueDate).toLocaleDateString()}
+                    {item.title}     {new Date(item.dueDate).toLocaleDateString()}
                   </Text>
                 </View>
               );
@@ -262,17 +263,11 @@ export default function TodoList(props) {
               <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, }}>
                 <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Due date" : "截止日期"}</Text>
                 <View style={{ maxWidth: "40%", flexDirection: "row", alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, color: "grey" }}>{selectedYear}-{handleMonthValue(selectedMonth)}-{selectedDay}</Text>
+                  <Text style={{ fontSize: 12, color: "grey" }}>{selectedYear ? selectedYear : "-"}-{selectedMonth ? handleMonthValue(selectedMonth) : "-"}-{selectedDay ? selectedDay : "-"}</Text>
                   <AntDesign name="right" size={24} color="black" onPress={handleDatePick} />
                 </View>
               </View>
-              <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, paddingRight: 20, borderTopColor: 'grey', borderTopWidth: 1, }}>
-                <Text style={{ justifyContent: 'flex-start', fontSize: 20 }}>{!language ? "Reminder" : "提醒"}</Text>
-                <View style={{ maxWidth: "40%", flexDirection: "row", alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, color: "grey" }}>{!language ? "Two Days Before" : "两天前"}</Text>
-                  <AntDesign name="right" size={24} color="black" />
-                </View>
-              </View>
+              
               <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250, paddingVertical: 10, borderTopColor: 'grey', borderTopWidth: 1 }}>
                 <Text style={{ fontSize: 20 }}>{!language ? "Sync to Calendar" : "同步至日历"}</Text>
                 <Switch
@@ -285,7 +280,7 @@ export default function TodoList(props) {
                 />
               </View>
               <View style={{ paddingTop: 10 }}>
-                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={handleSubmit}>Submit</Text>
+                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={handleSubmit}>{!language ? "Submit" : "确认"}</Text>
 
               </View>
             </View>
@@ -297,8 +292,8 @@ export default function TodoList(props) {
               <View style={styles.modalContent}>
 
                 {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
-                {selectedTask && <Text style={styles.modalDueDate}>Due Date: {new Date(selectedTask.dueDate).toLocaleDateString()}</Text>}
-                {selectedTask && <Text style={styles.modalDueDate}>Description: {selectedTask.description ? selectedTask.description : 'No Description'}</Text>}
+                {selectedTask && <Text style={styles.modalDueDate}>{!language ? "Due Date: " : "截止日期： "}{new Date(selectedTask.dueDate).toLocaleDateString()}</Text>}
+                {selectedTask && <Text style={styles.modalDueDate}>{!language ? "Description: " : "简介： "}{selectedTask.description ? selectedTask.description : !language ? "No Description" : "无简介"}</Text>}
                 <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250 }}>
                   <Text style={{ fontSize: 18 }}>{!language ? "Mark as completed" : "记录为已完成"}</Text>
                   <Switch
@@ -307,12 +302,12 @@ export default function TodoList(props) {
                     thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
                     ios_backgroundColor="#3e3e3e"
                     onValueChange={handleCompletemark}
-                    value={completeIsEnabled}
+                    value={selectedTask.completed}
                   />
                 </View>
                 <View style={{ ...styles.buttonContainer, flexDirection: "row", justifyContent: 'space-between' }}>
-                  <Button title="Close" onPress={handleCloseModal} />
-                  <Button title="Delete" onPress={() => handleDeleteTask(selectedTask)} color="red" />
+                  <Button title={!language ? "Close" : "关闭"} onPress={handleCloseModal} />
+                  <Button title={!language ? "Delete:" : "删除"} onPress={() => handleDeleteTask(selectedTask)} color="red" />
 
                 </View>
               </View>
@@ -328,21 +323,21 @@ export default function TodoList(props) {
             <View style={{ ...styles.modalContent }}>
 
               <View style={{ padding: 20 }}>
-                <Text style={{ fontWeight: 'bold' }}>Year:</Text>
+                <Text style={{ fontWeight: 'bold' }}>{!language ? "Year:" : "年："}</Text>
                 <RNPickerSelect
                   items={years.map(year => ({ label: year.toString(), value: year }))}
                   onValueChange={value => setSelectedYear(value)}
                   value={selectedYear}
                 />
 
-                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Month:</Text>
+                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>{!language ? "Month:" : "月："}</Text>
                 <RNPickerSelect
                   items={months}
                   onValueChange={value => setSelectedMonth(value)}
                   value={selectedMonth}
                 />
 
-                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Day:</Text>
+                <Text style={{ fontWeight: 'bold', marginTop: 20 }}>{!language ? "Day:" : "日："}</Text>
                 <RNPickerSelect
                   items={days.map(day => ({ label: day.toString(), value: day }))}
                   onValueChange={value => setSelectedDay(value)}
@@ -350,7 +345,7 @@ export default function TodoList(props) {
                 />
               </View>
               <View style={{ paddingTop: 10, alignSelf: "center" }}>
-                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={datePickerSubmit}>Submit</Text>
+                <Text style={{ ...styles.buttonSubmit, fontWeight: "bold", color: "black", textAlign: 'center' }} onPress={datePickerSubmit}>{!language ? "Submit" : "确认"}</Text>
 
               </View>
             </View>
