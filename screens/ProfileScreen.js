@@ -8,7 +8,7 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Text, View, Button, Pressable, Modal, TextInput, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
-import { Ionicons, AntDesign,EvilIcons  } from '@expo/vector-icons';
+import { Ionicons, AntDesign, EvilIcons } from '@expo/vector-icons';
 
 import DeleteCountDown from '../components/ProfileScreen/DeleteCountdown'
 import ChangeName from '../components/ProfileScreen/ChangeName'
@@ -22,20 +22,20 @@ function Profile(props) {
     const language = props.language
     const open = props.open
     const openName = props.openName
-    const {login, setLogin} = props
+    const { login, setLogin } = props
     const [profileName, setProfileName] = React.useState()
     const rerender = props.rerender
-    
-    if (login){
+
+    if (login) {
         AsyncStorage.getItem("profileName")
-        .then((name) => {
-            if (name) {
-                setProfileName(name)
-            }
-        })
+            .then((name) => {
+                if (name) {
+                    setProfileName(name)
+                }
+            })
     }
 
-    
+
 
 
     if (!login) {
@@ -50,20 +50,20 @@ function Profile(props) {
     } else {
         return (
             <>
-                <Pressable style = {{flexDirection:"row"}} onPress = {()=>openName()}>
+                <Pressable style={{ flexDirection: "row" }} onPress={() => openName()}>
                     <Text numberOfLines={2} ellipsizeMode="tail" style={{}}>{!language ? "Profile Name:" : "文件名称:"} {profileName}</Text>
                     <EvilIcons name="pencil" size={24} color="black" />
                 </Pressable>
 
 
-                <Pressable style={[styles.button,{marginTop:25}]} onPress={async () => {
+                <Pressable style={[styles.button, { marginTop: 25 }]} onPress={async () => {
                     await supabase.auth.signOut();
                     let keys = ["access_token", "profileName", "uuid", "email"]
                     await AsyncStorage.multiRemove(keys)
                     setLogin(false)
                     rerender()
                 }}>
-                    <Text style={{ fontWeight: "bold"}} >{!language ? "Logout" : "登录"}</Text>
+                    <Text style={{ fontWeight: "bold" }} >{!language ? "Logout" : "登录"}</Text>
                 </Pressable>
             </>
         )
@@ -73,10 +73,10 @@ function Profile(props) {
 
 export default function ProfileScreen(props) {
     const rerender = props.rerender
-    const [login,setLogin] = React.useState(false)
+    const [login, setLogin] = React.useState(false)
     const [LoginModal, setLoginModal] = React.useState(false);
     const [ResetModal, setResetModal] = React.useState(false);
-    const [NameModal,setNameModal] = React.useState(false)
+    const [NameModal, setNameModal] = React.useState(false)
 
 
 
@@ -123,7 +123,7 @@ export default function ProfileScreen(props) {
                     setNameModal(!NameModal);
                 }}
             >
-                <ChangeName close = {()=>setNameModal(!NameModal)} language = {language} login = {login}/>
+                <ChangeName close={() => setNameModal(!NameModal)} language={language} login={login} />
             </Modal>
             <Modal
                 animationType="slide"
@@ -157,7 +157,7 @@ export default function ProfileScreen(props) {
             <View style={{ flex: 1, flexDirection: "row", borderBottomWidth: 2 }}>
                 <Ionicons style={{ flex: 1 }} name="person-circle-outline" size={75} color="black" />
                 <View style={{ flex: 2, paddingTop: Constants.statusBarHeight }}>
-                    <Profile language={language} open={() => { setLoginModal(true) }} openName ={()=>{setNameModal(true)}} login = {login} setLogin = {setLogin} rerender = {()=>{rerender()}}/>
+                    <Profile language={language} open={() => { setLoginModal(true) }} openName={() => { setNameModal(true) }} login={login} setLogin={setLogin} rerender={() => { rerender() }} />
                 </View>
 
             </View>
@@ -166,93 +166,96 @@ export default function ProfileScreen(props) {
                 <View style={{}}>
                     <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 40 }}>{!language ? "Cloud Storage" : "云储存"}</Text>
                     <View style={{ flexDirection: "row", paddingTop: 20, justifyContent: "space-evenly" }}>
-                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login} onPress={()=>{
+                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, opacity: !login ? 0.5 : 1.0 }]} disabled={!login} onPress={() => {
                             setLogin(!login)
-                             AsyncStorage.multiGet(["notes","uuid"])
-                                .then(async (data)=>{
-                                    if (data){
-                                        console.log(data)
-                                        supabase.from("notes")
-                                            .update({data:JSON.parse(data[0][1])})
-                                            .eq('id',data[1][1])
-                                            .then(data=>{
+                            AsyncStorage.multiGet(["notes", "uuid"])
+                                .then(async (data) => {
+                                    if (data[0][1] !== null && data[0][1] !== undefined) {
+
+                                        supabase.from("profiles")
+                                            .update({ notes: JSON.parse(data[0][1]) })
+                                            .eq('id', data[1][1])
+                                            .then(data => {
 
                                             })
-                                            .catch((error)=>{
+                                            .catch((error) => {
 
                                                 Alert.alert(error)
                                             })
 
-                                    }else{
-                                         supabase.from("notes")
-                                            .update({data:{files:[],folders:[]}})
-                                            .eq('id',data[1][1])
-                                            .then(data=>{
+                                    } else {
+
+                                        supabase.from("profiles")
+                                            .update({ notes: { files: [], folders: [] } })
+                                            .eq('id', data[1][1])
+                                            .then(data => {
 
                                             })
-                                            .catch((error)=>{
+                                            .catch((error) => {
 
-                                                Alert.alert(error)
+                                                Alert.alert(error.message)
                                             })
                                     }
                                 })
-                                .catch((error)=>{
-                                    Alert.alert(error)
+                                .catch((error) => {
+                                    Alert.alert(error.message)
                                 })
 
-                                AsyncStorage.multiGet(["tasks","uuid"])
-                                .then(async (data)=>{
-                                    if (data){
-                                        console.log(data[0][1][0])
-                                        supabase.from("tasks")
-                                            .update({data:JSON.parse(data[0][1])})
-                                            .eq('id',data[1][1])
-                                            .then(data=>{
-                                                
-                                            })
-                                            .catch((error)=>{
+                            AsyncStorage.multiGet(["tasks", "uuid"])
+                                .then(async (data) => {
 
-                                                Alert.alert(error)
-                                            })
+                                    if (data[0][1] !== null && data[0][1] !== undefined) {
 
-                                    }else{
-                                         supabase.from("tasks")
-                                            .update({data:{title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true}})
-                                            .eq('id',data[1][1])
-                                            .then(data=>{
+                                        supabase.from("profiles")
+                                            .update({ tasks: JSON.parse(data[0][1]) })
+                                            .eq('id', data[1][1])
+                                            .then(data => {
 
                                             })
-                                            .catch((error)=>{
+                                            .catch((error) => {
 
-                                                Alert.alert(error)
+                                                Alert.alert(error.message)
+                                            })
+
+                                    } else {
+                                        supabase.from("profiles")
+                                            .update({ tasks: { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true } })
+                                            .eq('id', data[1][1])
+                                            .then(data => {
+
+                                            })
+                                            .catch((error) => {
+
+                                                Alert.alert(error.message)
                                             })
                                     }
                                 })
-                                .catch((error)=>{
-                                    Alert.alert(error)
+                                .catch((error) => {
+                                    Alert.alert(error.message)
                                 })
 
                             setLogin(!login)
-                            
+
                         }}>
                             <Text style={{ fontWeight: "bold", color: "black" }}>{!language ? "Upload data to cloud" : "上传数据到云存储"}</Text>
                         </Pressable>
-                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180,opacity:!login?0.5:1.0 }]} disabled = {!login} onPress={async ()=>{
+                        <Pressable style={[styles.button, { backgroundColor: "#D9D9D9", width: 180, opacity: !login ? 0.5 : 1.0 }]} disabled={!login} onPress={async () => {
                             setLogin(!login)
-                            await supabase.from("notes").select("data")
-                                .then((data)=>{
-                                    AsyncStorage.setItem("notes",JSON.stringify(data.data[0].data))
+                            await supabase.from("profiles").select("notes")
+                                .then((data) => {
+
+                                    AsyncStorage.setItem("notes", JSON.stringify(data.data[0].notes))
                                 })
-                                .catch((error)=>{
+                                .catch((error) => {
                                     Alert.alert(error.message)
                                 })
 
 
-                            await supabase.from("tasks").select("data")
-                                .then((data)=>{
-                                    AsyncStorage.setItem("tasks",JSON.stringify(data.data[0].data))
+                            await supabase.from("profiles").select("tasks")
+                                .then((data) => {
+                                    AsyncStorage.setItem("tasks", JSON.stringify(data.data[0].tasks))
                                 })
-                                .catch((error)=>{
+                                .catch((error) => {
                                     Alert.alert(error.message)
                                 })
                             setLogin(!login)
@@ -270,8 +273,8 @@ export default function ProfileScreen(props) {
                                 .catch((error) => {
                                     console.error(error)
                                 })
-                                setLanguage(!language)
-                                rerender()
+                            setLanguage(!language)
+                            rerender()
 
                         }} disabled={!language} style={[styles.button, { backgroundColor: "#D9D9D9", width: 180 }]}>
                             <Text style={[{ fontWeight: "bold", color: "black" }, !language ? { opacity: .5 } : { opacity: 1 }]}>English</Text>

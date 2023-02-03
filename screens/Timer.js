@@ -1,3 +1,8 @@
+// Name: Ken Li Jia Jie
+
+// Admission Number: P2227704
+
+// Class: DIT/FT/1B/02
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Text, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';

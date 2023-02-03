@@ -5,17 +5,17 @@
 // Class: DIT/FT/1B/02
 import * as React from 'react';
 
-import { StyleSheet, Text, View, SectionList, TouchableOpacity, Modal, Button } from 'react-native';
+import { StyleSheet, Text, View, SectionList, TouchableOpacity, Modal, Button, Alert, Pressable } from 'react-native';
 import { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
-import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { MaterialIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
 import { setYear } from 'date-fns';
 
-export default function CalendarScreen() {
 
+export default function CalendarScreen() {
   const [language, setLanguage] = React.useState(false)
   AsyncStorage.getItem("language")
     .then((value) => {
@@ -24,17 +24,45 @@ export default function CalendarScreen() {
     .catch((error) => {
       console.error(error)
     })
+  const [tasks, setTasks] = React.useState([])
 
-  const [tasks, setTasks] = React.useState([
-    { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
-    { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
-    { title: 'Home-Based Learning Packege', dueDate: new Date('2023-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
-    { title: 'Java Assignment 1', dueDate: new Date('2023-01-02'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
-  ]);
-  const filteredEvents = tasks.filter(event => event.showInCalendar !== false);
+  
+
+  async function getData() {
+    await AsyncStorage.getItem("tasks")
+      .then((data) => {
+        if (data) {
+
+          setTasks(JSON.parse(data))
+        } else {
+          setTasks([
+            { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+            { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+            { title: 'Home-Based Learning Packege', dueDate: new Date('2022-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+            { title: 'Java Assignment 1', dueDate: new Date('2022-05-04'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+          ])
+
+        }
+
+      })
+      .catch(error => {
+        Alert.alert(error.message)
+      })
+    let filteredEvents = tasks.filter(event => event.showInCalendar !== false);
+    setdayEvents(filteredEvents)
+  }
 
 
-  const [dayEvents, setdayEvents] = React.useState(filteredEvents);
+
+  // const [tasks, setTasks] = React.useState([
+  //   { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  //   { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  //   { title: 'Home-Based Learning Packege', dueDate: new Date('2023-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  //   { title: 'Java Assignment 1', dueDate: new Date('2023-01-02'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  // ]);
+
+  const [refresh,setRefresh] = React.useState(false)
+  const [dayEvents, setdayEvents] = React.useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
@@ -45,17 +73,33 @@ export default function CalendarScreen() {
   const [selectedDay, setSelectedDay] = React.useState(null);
   const [calendarDate, setCalendarDate] = React.useState(new Date().toISOString().substring(0, 10))
 
+  React.useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable onPress={() => {
+          setRefresh(!refresh)
+        }}>
+          <FontAwesome name="refresh" size={24} color="black" />
+        </Pressable>
+      )
+    })
+    getData()
+    let filteredEvents = tasks.filter(event => event.showInCalendar !== false);
+    setdayEvents(filteredEvents)
 
+  }, [refresh])
 
   const resetMarkedDates = {};
+
   dayEvents.forEach(dayEvents => {
-    markedDates[dayEvents.dueDate.toISOString().substring(0, 10)] = { marked: true };
+    markedDates[new Date(dayEvents.dueDate).toISOString().substring(0, 10)] = { marked: true };
   });
 
   function handleDayPress(day) {
+
     setSelectedDate(day.dateString);
     var updatedDayEvents = dayEvents.map(item => {
-      if (item.dueDate.toISOString().substring(0, 10) == day.dateString) {
+      if (new Date(item.dueDate).toISOString().substring(0, 10) == day.dateString) {
         item.selected = true;
       } else {
         item.selected = false;
@@ -65,7 +109,7 @@ export default function CalendarScreen() {
     setdayEvents(updatedDayEvents);
     setSelectedEvents(updatedDayEvents.filter(dayEvents => dayEvents.selected == true));
     // update the selected date in markedDates
-    var eventForSelectedDate = dayEvents.find(event => event.dueDate.toISOString().substring(0, 10) == day.dateString);
+    var eventForSelectedDate = dayEvents.find(event => new Date(event.dueDate).toISOString().substring(0, 10) == day.dateString);
     if (eventForSelectedDate) {
       setMarkedDates({ ...resetMarkedDates, [day.dateString]: { marked: true, selected: true, selectedColor: 'red' } });
     } else {
@@ -93,7 +137,7 @@ export default function CalendarScreen() {
 
   }
 
-  const handleCloseCallendarModal = () =>{
+  const handleCloseCallendarModal = () => {
     setShowDateModal(false)
     setSelectedYear(null)
     setSelectedMonth(null)
@@ -133,7 +177,7 @@ export default function CalendarScreen() {
     return month;
   }
 
-  const handleQuickNav=()=> {
+  const handleQuickNav = () => {
     setCalendarDate(selectedYear + "-" + handleMonthValue(selectedMonth) + "-" + selectedDay);
     console.log(calendarDate)
     setShowDateModal(false);
@@ -180,13 +224,13 @@ export default function CalendarScreen() {
 
 
       </View>
-      <View style={{ alignSelf: 'flex-end', left: -8, top: -10}}>
+      <View style={{ alignSelf: 'flex-end', left: -8, top: -10 }}>
         <AntDesign name="calendar" size={55} color="black" onPress={handleCalendarPress} />
       </View>
       <Modal visible={showDateModal}>
         <View style={{ padding: 20 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 30 }}>Quick Navigation</Text>
-          <View style = {{padding: 10, paddingTop: 20}}>
+          <View style={{ padding: 10, paddingTop: 20 }}>
             <Text style={{ fontWeight: 'bold' }}>Year:</Text>
             <RNPickerSelect
               items={years.map(year => ({ label: year.toString(), value: year }))}
@@ -227,7 +271,7 @@ export default function CalendarScreen() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
-              {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate.toISOString().substring(0, 10)}</Text>}
+              {selectedTask && <Text style={styles.modalDueDate}>Due Date: {new Date(selectedTask.dueDate).toISOString().substring(0, 10)}</Text>}
               <Button title="Close" onPress={handleCloseModal} />
             </View>
           </View>

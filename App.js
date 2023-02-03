@@ -1,3 +1,9 @@
+// Name: Leong Yu Zhi Andy
+
+// Admission Number: P2205865
+
+// Class: DIT/FT/1B/02
+
 import * as React from 'react';
 import { Text } from 'react-native';
 import Constants from 'expo-constants';
@@ -58,14 +64,14 @@ export default function App() {
             );
           },
         }} />
-        <Tab.Screen name={!language ? "Todo" : "待办"} component={TodoList} options={{
+        <Tab.Screen name={!language ? "Todo" : "待办"} children = {()=><TodoList rerender = {()=>{setLanguage(!language)}} />} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <Foundation name="clipboard-notes" size={24} color="black" />
             );
           },
         }} />
-        <Tab.Screen name={!language ? "Notes" : "笔记"} children = {()=><NoteScreen files = {[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]} folders = {[{name: "Downloads",files:[{name: "Note.txt", data: "Lorem ipsum this is a test message idk what else to write here"}]},{name: "Downldoads",files:[]  }]}/>} options={{
+        <Tab.Screen name={!language ? "Notes" : "笔记"} component = {NoteScreen} options={{
           tabBarIcon: ({ focused }) => {
             return (
               <FontAwesome5 name="sticky-note" size={24} color="black" />

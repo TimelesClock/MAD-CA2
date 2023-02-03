@@ -1,13 +1,19 @@
+// Name: Ken Li Jia Jie
+
+// Admission Number: P2227704
+
+// Class: DIT/FT/1B/02
 import * as React from 'react';
-import { Text, View, Button, TextInput, SectionList, Modal, Switch} from 'react-native';
+import { Text, View, Button, TextInput, SectionList, Modal, Switch, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNPickerSelect from 'react-native-picker-select';
 
 
-export default function TodoList() {
 
+export default function TodoList(props) {
+  const rerender = props.rerender
   const [language, setLanguage] = React.useState(false)
   AsyncStorage.getItem("language")
     .then((value) => {
@@ -17,14 +23,40 @@ export default function TodoList() {
       console.error(error)
     })
 
-  const [tasks, setTasks] = React.useState([
-    { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
-    { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
-    { title: 'Home-Based Learning Packege', dueDate: new Date('2022-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
-    { title: 'Java Assignment 1', dueDate: new Date('2022-05-04'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
-  ]);
+
+  const [tasks, setTasks] = React.useState([])
 
 
+  async function getData(){
+    await AsyncStorage.getItem("tasks")
+    .then((data) => {
+      if (data) {
+        setTasks(JSON.parse(data))
+
+      } else {
+        setTasks([
+          { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+          { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+          { title: 'Home-Based Learning Packege', dueDate: new Date('2022-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+          { title: 'Java Assignment 1', dueDate: new Date('2022-05-04'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+        ])
+      }
+
+    })
+    .catch(error => {
+      Alert.alert(error.message)
+    })}
+
+  // const [tasks, setTasks] = React.useState([
+  //   { title: 'MAD Assignment 2', dueDate: new Date('2023-01-13'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  //   { title: 'BED Assignment 1', dueDate: new Date('2023-01-03'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  //   { title: 'Home-Based Learning Packege', dueDate: new Date('2022-01-17'), completed: false, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  //   { title: 'Java Assignment 1', dueDate: new Date('2022-05-04'), completed: true, selected: false, description: "", showInCalendar: true, showInTodo: true },
+  // ]);
+  React.useEffect(()=>{
+    getData()
+  },[])
+  
 
   const [searchTask, setSearchTask] = React.useState('');
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -39,10 +71,10 @@ export default function TodoList() {
   const [date, setDate] = React.useState(new Date());
   const [hiddenSections, setHiddenSections] = React.useState({});
   const [datePickerVisible, setDatePickerVisible] = React.useState(false);
-  const [selectedYear, setSelectedYear] = React.useState(null);
-  const [selectedMonth, setSelectedMonth] = React.useState(null);
-  const [selectedDay, setSelectedDay] = React.useState(null);
-  
+  const [selectedYear, setSelectedYear] = React.useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = React.useState(new Date().getMonth()+1);
+  const [selectedDay, setSelectedDay] = React.useState(new Date().getDate());
+
 
 
   const years = Array.from({ length: 2032 - 2012 + 1 }, (a, i) => 2012 + i);
@@ -80,7 +112,6 @@ export default function TodoList() {
     });
   };
 
-
   const sections = [
     {
       title: !language ? "Complete" : "已完成",
@@ -93,15 +124,22 @@ export default function TodoList() {
   ];
 
   const handleSubmit = () => {
-    setTaskDueDate(selectedYear + "-" + handleMonthValue(selectedMonth) + "-" + selectedDay);
-    const newTask = { title: taskTitle, dueDate: new Date(taskDueDate), completed: false, selected: false, description: "", showInCalendar: isEnabled, showInTodo: true };
-    console.log(newTask);
-    setTasks([...tasks, newTask]);
+    // console.log(selectedDay,selectedMonth,selectedYear)
+    // setTaskDueDate(selectedYear + "-" + handleMonthValue(selectedMonth) + "-" + selectedDay);
+    // console.log(taskDueDate)
+
+
+    const newTask = { title: taskTitle, dueDate: new Date(selectedYear,selectedMonth-1,selectedDay), completed: false, selected: false, description: taskDescription, showInCalendar: isEnabled, showInTodo: true };
+    let temp = tasks
+    temp.push(newTask)
+    setTasks(temp);
+
     setTaskDescription('');
     setTaskTitle('');
     setIsEnabled(false)
     setModalVisible(false);
     storeData();
+    getData()
   };
 
   const handleDatePick = () => {
@@ -128,22 +166,13 @@ export default function TodoList() {
     return month;
   }
 
-  async function getData() {
 
-    try {
-      const tasks = await AsyncStorage.getItem('tasks');
-      return JSON.parse(tasks);
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-
-  }
 
 
   const storeData = async () => {
     try {
       const stringifiedTasks = JSON.stringify(tasks);
+
       await AsyncStorage.setItem('tasks', stringifiedTasks);
     } catch (error) {
       console.error(error);
@@ -155,7 +184,7 @@ export default function TodoList() {
     handleCloseModal();
   };
 
-  const handleCompletemark= ()=>{
+  const handleCompletemark = () => {
     toggleCompleted(findIndex(selectedTask))
   }
 
@@ -171,7 +200,7 @@ export default function TodoList() {
       return newTasks;
     });
   }
-  
+
   return (
     <>
 
@@ -192,9 +221,9 @@ export default function TodoList() {
             if (!hiddenSections[section.title]) {
               return (
                 <View>
-                  
+
                   <Text style={styles.item} onPress={() => handleTaskClick(item)}>
-                    {item.title}  {item.dueDate.toLocaleDateString()}
+                    {item.title}  {new Date(item.dueDate).toLocaleDateString()}
                   </Text>
                 </View>
               );
@@ -266,25 +295,25 @@ export default function TodoList() {
           <Modal visible={!!selectedTask} animationType="fade" transparent={true}>
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                
+
                 {selectedTask && <Text style={styles.modalTitle}>{selectedTask.title}</Text>}
-                {selectedTask && <Text style={styles.modalDueDate}>Due Date: {selectedTask.dueDate.toLocaleDateString()}</Text>}
+                {selectedTask && <Text style={styles.modalDueDate}>Due Date: {new Date(selectedTask.dueDate).toLocaleDateString()}</Text>}
                 {selectedTask && <Text style={styles.modalDueDate}>Description: {selectedTask.description ? selectedTask.description : 'No Description'}</Text>}
-                <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250}}>
-                <Text style={{ fontSize: 18 }}>{!language ? "Mark as completed" : "记录为已完成"}</Text>
-                <Switch
-                  style={{ bottom: 12 }}
-                  trackColor={{ false: "#767577", true: "#81b0ff" }}
-                  thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                  ios_backgroundColor="#3e3e3e"
-                  onValueChange={handleCompletemark}
-                  value={completeIsEnabled}
-                />
-              </View>
-                <View style={{...styles.buttonContainer, flexDirection: "row", justifyContent: 'space-between'}}>
+                <View style={{ flexDirection: "row", justifyContent: 'space-between', width: 250 }}>
+                  <Text style={{ fontSize: 18 }}>{!language ? "Mark as completed" : "记录为已完成"}</Text>
+                  <Switch
+                    style={{ bottom: 12 }}
+                    trackColor={{ false: "#767577", true: "#81b0ff" }}
+                    thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={handleCompletemark}
+                    value={completeIsEnabled}
+                  />
+                </View>
+                <View style={{ ...styles.buttonContainer, flexDirection: "row", justifyContent: 'space-between' }}>
                   <Button title="Close" onPress={handleCloseModal} />
-                  <Button title="Delete" onPress={() => handleDeleteTask(selectedTask)}  color="red"/>
-                  
+                  <Button title="Delete" onPress={() => handleDeleteTask(selectedTask)} color="red" />
+
                 </View>
               </View>
             </View>
@@ -434,7 +463,7 @@ var styles = {
   },
   buttonContainer: {
     alignSelf: "center",
-    width : 250
+    width: 250
 
   },
   buttonSubmit: {
